@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Habits</title>
+  <meta name="description" content="Simple habit tracker with streaks">
+  <meta name="theme-color" content="#0c0a09">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: #0c0a09;
+      color: #f5f5f4;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    
+    #root {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    
+    .habit-card {
+      background: linear-gradient(145deg, rgba(41, 37, 36, 0.6), rgba(28, 25, 23, 0.8));
+      border: 1px solid rgba(245, 158, 11, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .habit-card:hover {
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    
+    .streak-glow {
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+    
+    .checkbox-custom {
+      width: 28px;
+      height: 28px;
+      border: 2px solid rgba(245, 158, 11, 0.4);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    
+    .checkbox-custom.checked {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: #f59e0b;
+    }
+    
+    .checkbox-custom:hover {
+      border-color: #f59e0b;
+    }
+    
+    .amount-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+    }
+    
+    .amount-btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+    }
+    
+    .amount-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .nav-btn {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    
+    .nav-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #1c1917;
+    }
+    
+    .nav-btn:not(.active) {
+      background: transparent;
+      color: #a8a29e;
+    }
+    
+    .nav-btn:not(.active):hover {
+      color: #f5f5f4;
+      background: rgba(245, 158, 11, 0.1);
+    }
+    
+    .mini-bar {
+      height: 24px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+      background: rgba(245, 158, 11, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mini-bar-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #f59e0b;
+      transition: height 0.2s ease;
+    }
+    
+    input, select {
+      background: rgba(28, 25, 23, 0.8);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #f5f5f4;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    
+    input:focus, select:focus {
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+    
+    input::placeholder {
+      color: #78716c;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+    
+    .modal-content {
+      background: #1c1917;
+      width: 100%;
+      max-width: 32rem;
+      border-radius: 16px 16px 0 0;
+      padding: 24px;
+    }
+    
+    .add-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #1c1917;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.25);
+      transition: transform 0.15s ease;
+    }
+    
+    .add-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    .type-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    
+    .type-btn.active {
+      background: #f59e0b;
+      color: #1c1917;
+    }
+    
+    .type-btn:not(.active) {
+      background: #292524;
+      color: #a8a29e;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #1c1917;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      transition: opacity 0.15s ease;
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #57534e;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.15s ease;
+    }
+    
+    .delete-btn:hover {
+      color: #ef4444;
+    }
+    
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #78716c;
+      padding: 4px;
+    }
+    
+    .icon-btn:hover {
+      color: #f5f5f4;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    const STORAGE_KEY = 'habit-tracker-data';
+    
+    // Simple icon components using Lucide
+    const Icon = ({ name, size = 24, className = '' }) => {
+      const ref = React.useRef(null);
+      useEffect(() => {
+        if (ref.current) {
+          ref.current.innerHTML = '';
+          const icon = lucide.icons[name];
+          if (icon) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', size);
+            svg.setAttribute('height', size);
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+            svg.setAttribute('stroke-width', '2');
+            svg.setAttribute('stroke-linecap', 'round');
+            svg.setAttribute('stroke-linejoin', 'round');
+            svg.innerHTML = icon[2];
+            ref.current.appendChild(svg);
+          }
+        }
+      }, [name, size]);
+      return <span ref={ref} className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} />;
+    };
+    
+    const getDateKey = (date = new Date()) => {
+      return date.toISOString().split('T')[0];
+    };
+    
+    const getDaysAgo = (n) => {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return getDateKey(d);
+    };
+    
+    const formatDate = (dateKey) => {
+      const date = new Date(dateKey + 'T12:00:00');
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+    
+    const loadData = () => {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+          return JSON.parse(data);
+        }
+      } catch (e) {
+        console.error('Failed to load data:', e);
+      }
+      return { habits: [], logs: {} };
+    };
+    
+    const saveData = (data) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Failed to save data:', e);
+      }
+    };
+    
+    function HabitTracker() {
+      const [data, setData] = useState(() => loadData());
+      const [view, setView] = useState('today');
+      const [showAddHabit, setShowAddHabit] = useState(false);
+      const [newHabit, setNewHabit] = useState({ name: '', type: 'checkbox', target: 1, unit: '' });
+      
+      const { habits, logs } = data;
+      const today = getDateKey();
+      
+      useEffect(() => {
+        saveData(data);
+      }, [data]);
+      
+      const updateData = (updater) => {
+        setData(prev => {
+          const next = updater(prev);
+          return next;
+        });
+      };
+      
+      const calculateStreak = (habitId) => {
+        let streak = 0;
+        let checkDate = new Date();
+        
+        const habit = habits.find(h => h.id === habitId);
+        if (!habit) return 0;
+        
+        const isComplete = (log) => {
+          if (!log) return false;
+          if (habit.type === 'checkbox') return log.done;
+          return (log.value || 0) >= habit.target;
+        };
+        
+        const todayLog = logs[today]?.[habitId];
+        if (!isComplete(todayLog)) {
+          checkDate.setDate(checkDate.getDate() - 1);
+        }
+        
+        while (true) {
+          const dateKey = getDateKey(checkDate);
+          const log = logs[dateKey]?.[habitId];
+          
+          if (isComplete(log)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            break;
+          }
+          
+          if (streak > 365) break;
+        }
+        
+        return streak;
+      };
+      
+      const addHabit = () => {
+        if (!newHabit.name.trim()) return;
+        
+        const habit = {
+          id: Date.now().toString(),
+          name: newHabit.name.trim(),
+          type: newHabit.type,
+          target: newHabit.type === 'amount' ? Number(newHabit.target) || 1 : 1,
+          unit: newHabit.type === 'amount' ? newHabit.unit.trim() : '',
+          createdAt: today
+        };
+        
+        updateData(prev => ({
+          ...prev,
+          habits: [...prev.habits, habit]
+        }));
+        
+        setNewHabit({ name: '', type: 'checkbox', target: 1, unit: '' });
+        setShowAddHabit(false);
+      };
+      
+      const deleteHabit = (habitId) => {
+        updateData(prev => ({
+          ...prev,
+          habits: prev.habits.filter(h => h.id !== habitId)
+        }));
+      };
+      
+      const toggleCheckbox = (habitId, dateKey = today) => {
+        updateData(prev => ({
+          ...prev,
+          logs: {
+            ...prev.logs,
+            [dateKey]: {
+              ...prev.logs[dateKey],
+              [habitId]: {
+                ...prev.logs[dateKey]?.[habitId],
+                done: !prev.logs[dateKey]?.[habitId]?.done
+              }
+            }
+          }
+        }));
+      };
+      
+      const updateAmount = (habitId, delta, dateKey = today) => {
+        updateData(prev => {
+          const currentValue = prev.logs[dateKey]?.[habitId]?.value || 0;
+          const newValue = Math.max(0, currentValue + delta);
+          return {
+            ...prev,
+            logs: {
+              ...prev.logs,
+              [dateKey]: {
+                ...prev.logs[dateKey],
+                [habitId]: {
+                  ...prev.logs[dateKey]?.[habitId],
+                  value: newValue
+                }
+              }
+            }
+          };
+        });
+      };
+      
+      const getCompletionRate = (habitId, days = 30) => {
+        const habit = habits.find(h => h.id === habitId);
+        if (!habit) return 0;
+        
+        let completed = 0;
+        let total = 0;
+        
+        for (let i = 0; i < days; i++) {
+          const dateKey = getDaysAgo(i);
+          if (dateKey < habit.createdAt) break;
+          
+          total++;
+          const log = logs[dateKey]?.[habitId];
+          
+          if (habit.type === 'checkbox' && log?.done) completed++;
+          if (habit.type === 'amount' && (log?.value || 0) >= habit.target) completed++;
+        }
+        
+        return total > 0 ? Math.round((completed / total) * 100) : 0;
+      };
+      
+      const getLast7Days = () => {
+        return Array.from({ length: 7 }, (_, i) => getDaysAgo(6 - i));
+      };
+      
+      return (
+        <div style={{ minHeight: '100vh', paddingBottom: '96px' }}>
+          {/* Header */}
+          <div style={{ padding: '32px 20px 24px' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', letterSpacing: '-0.025em' }}>Habits</h1>
+            <p style={{ color: '#78716c', fontSize: '14px', marginTop: '4px' }}>{formatDate(today)}</p>
+          </div>
+          
+          {/* Navigation */}
+          <div style={{ padding: '0 20px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '4px', background: 'rgba(28, 25, 23, 0.5)', borderRadius: '8px' }}>
+              <button 
+                onClick={() => setView('today')} 
+                className={`nav-btn ${view === 'today' ? 'active' : ''}`}
+                style={{ flex: 1 }}
+              >
+                <Icon name="check" size={16} /> Today
+              </button>
+              <button 
+                onClick={() => setView('history')} 
+                className={`nav-btn ${view === 'history' ? 'active' : ''}`}
+                style={{ flex: 1 }}
+              >
+                <Icon name="trending-up" size={16} /> Trends
+              </button>
+            </div>
+          </div>
+          
+          {/* Today View */}
+          {view === 'today' && (
+            <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {habits.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
+                  <Icon name="calendar" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
+                  <p style={{ fontSize: '14px' }}>No habits yet</p>
+                  <p style={{ fontSize: '12px', marginTop: '4px' }}>Add one to get started</p>
+                </div>
+              ) : (
+                habits.map(habit => {
+                  const streak = calculateStreak(habit.id);
+                  const log = logs[today]?.[habit.id];
+                  const isComplete = habit.type === 'checkbox' 
+                    ? log?.done 
+                    : (log?.value || 0) >= habit.target;
+                  
+                  return (
+                    <div key={habit.id} className="habit-card" style={{ borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <h3 style={{ 
+                              fontWeight: 500, 
+                              color: isComplete ? '#f59e0b' : '#e7e5e4',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {habit.name}
+                            </h3>
+                            {streak > 0 && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b', flexShrink: 0 }}>
+                                <span className={streak >= 7 ? 'streak-glow' : ''}>
+                                  <Icon name="flame" size={14} />
+                                </span>
+                                <span style={{ fontSize: '12px', fontWeight: 600 }}>{streak}</span>
+                              </div>
+                            )}
+                          </div>
+                          {habit.type === 'amount' && (
+                            <p style={{ fontSize: '12px', color: '#78716c', marginTop: '4px' }}>
+                              {log?.value || 0} / {habit.target} {habit.unit}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '12px' }}>
+                          {habit.type === 'checkbox' ? (
+                            <div 
+                              onClick={() => toggleCheckbox(habit.id)}
+                              className={`checkbox-custom ${log?.done ? 'checked' : ''}`}
+                            >
+                              {log?.done && <Icon name="check" size={18} />}
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <button 
+                                onClick={() => updateAmount(habit.id, -1)}
+                                className="amount-btn"
+                              >
+                                <Icon name="minus" size={16} />
+                              </button>
+                              <span style={{ 
+                                width: '32px', 
+                                textAlign: 'center', 
+                                fontWeight: 600, 
+                                color: isComplete ? '#f59e0b' : '#d6d3d1' 
+                              }}>
+                                {log?.value || 0}
+                              </span>
+                              <button 
+                                onClick={() => updateAmount(habit.id, 1)}
+                                className="amount-btn"
+                              >
+                                <Icon name="plus" size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+          
+          {/* History/Trends View */}
+          {view === 'history' && (
+            <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {habits.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
+                  <Icon name="trending-up" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
+                  <p style={{ fontSize: '14px' }}>No data yet</p>
+                </div>
+              ) : (
+                habits.map(habit => {
+                  const streak = calculateStreak(habit.id);
+                  const rate = getCompletionRate(habit.id);
+                  const last7 = getLast7Days();
+                  
+                  return (
+                    <div key={habit.id} className="habit-card" style={{ borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div>
+                          <h3 style={{ fontWeight: 500, color: '#e7e5e4' }}>{habit.name}</h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b' }}>
+                              <Icon name="flame" size={14} />
+                              <span style={{ fontSize: '12px' }}>{streak} day streak</span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#78716c' }}>
+                              {rate}% last 30d
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => deleteHabit(habit.id)}
+                          className="delete-btn"
+                        >
+                          <Icon name="trash-2" size={16} />
+                        </button>
+                      </div>
+                      
+                      {/* Mini chart */}
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '4px', height: '32px' }}>
+                        {last7.map(dateKey => {
+                          const log = logs[dateKey]?.[habit.id];
+                          let fillPercent = 0;
+                          
+                          if (habit.type === 'checkbox') {
+                            fillPercent = log?.done ? 100 : 0;
+                          } else {
+                            fillPercent = Math.min(100, ((log?.value || 0) / habit.target) * 100);
+                          }
+                          
+                          const isToday = dateKey === today;
+                          
+                          return (
+                            <div key={dateKey} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                              <div className="mini-bar" style={{ width: '100%' }}>
+                                <div className="mini-bar-fill" style={{ height: `${fillPercent}%` }} />
+                              </div>
+                              <span style={{ fontSize: '9px', color: isToday ? '#f59e0b' : '#57534e' }}>
+                                {new Date(dateKey + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'narrow' })}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+          
+          {/* Add Habit Modal */}
+          {showAddHabit && (
+            <div className="modal-overlay" onClick={() => setShowAddHabit(false)}>
+              <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#f5f5f4' }}>New Habit</h2>
+                  <button onClick={() => setShowAddHabit(false)} className="icon-btn">
+                    <Icon name="x" size={24} />
+                  </button>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <input
+                    type="text"
+                    placeholder="Habit name"
+                    value={newHabit.name}
+                    onChange={e => setNewHabit({ ...newHabit, name: e.target.value })}
+                    style={{ width: '100%' }}
+                    autoFocus
+                  />
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => setNewHabit({ ...newHabit, type: 'checkbox' })}
+                      className={`type-btn ${newHabit.type === 'checkbox' ? 'active' : ''}`}
+                    >
+                      Checkbox
+                    </button>
+                    <button
+                      onClick={() => setNewHabit({ ...newHabit, type: 'amount' })}
+                      className={`type-btn ${newHabit.type === 'amount' ? 'active' : ''}`}
+                    >
+                      Amount
+                    </button>
+                  </div>
+                  
+                  {newHabit.type === 'amount' && (
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <input
+                        type="number"
+                        placeholder="Target"
+                        value={newHabit.target}
+                        onChange={e => setNewHabit({ ...newHabit, target: e.target.value })}
+                        style={{ width: '96px' }}
+                        min="1"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Unit (e.g., glasses)"
+                        value={newHabit.unit}
+                        onChange={e => setNewHabit({ ...newHabit, unit: e.target.value })}
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={addHabit}
+                    disabled={!newHabit.name.trim()}
+                    className="submit-btn"
+                  >
+                    Add Habit
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Floating Add Button */}
+          <button onClick={() => setShowAddHabit(true)} className="add-btn">
+            <Icon name="plus" size={28} />
+          </button>
+        </div>
+      );
+    }
+    
+    ReactDOM.createRoot(document.getElementById('root')).render(<HabitTracker />);
+  </script>
+</body>
+</html>

@@ -1,11 +1,11 @@
 {
   "name": "Habit Tracker",
-  "short_name": "Habits",
+  "short_name": "習慣",
   "description": "Simple habit tracker with streaks",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1a1520",
-  "theme_color": "#1a1520",
+  "background_color": "#1c1917",
+  "theme_color": "#1c1917",
   "icons": [
     {
       "src": "icons/kowloon-romance.svg",

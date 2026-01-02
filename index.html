@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Habits</title>
+  <title>習慣 | Habits</title>
   <meta name="description" content="Simple habit tracker with streaks">
-  <meta name="theme-color" content="#0c0a09">
+  <meta name="theme-color" content="#1a1520">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=M+PLUS+1+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -21,32 +21,91 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     body {
-      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0c0a09;
-      color: #f5f5f4;
+      font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg,
+        #1a1520 0%,
+        #2d1f35 30%,
+        #3d2847 60%,
+        #4a2f52 100%
+      );
+      background-attachment: fixed;
+      color: #f5e6d3;
       min-height: 100vh;
       min-height: 100dvh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(255, 107, 157, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 183, 77, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .mono {
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-family: 'M PLUS 1 Code', monospace;
     }
-    
+
     #root {
       min-height: 100vh;
       min-height: 100dvh;
+      position: relative;
+      z-index: 1;
     }
-    
+
     .habit-card {
-      background: linear-gradient(145deg, rgba(41, 37, 36, 0.6), rgba(28, 25, 23, 0.8));
-      border: 1px solid rgba(245, 158, 11, 0.1);
-      transition: all 0.2s ease;
+      background: linear-gradient(145deg,
+        rgba(58, 42, 68, 0.7),
+        rgba(38, 28, 48, 0.85)
+      );
+      border: 1px solid rgba(255, 107, 157, 0.15);
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .habit-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 107, 157, 0.3),
+        rgba(0, 212, 255, 0.2),
+        transparent
+      );
     }
 
     .habit-card:hover {
-      border-color: rgba(245, 158, 11, 0.3);
+      border-color: rgba(255, 107, 157, 0.35);
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(255, 107, 157, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
     }
 
     /* Staggered card layouts */
@@ -66,65 +125,87 @@
     }
 
     .streak-number {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
       letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ff6b9d, #ffb74d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    
+
     .streak-glow {
-      text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+      filter: drop-shadow(0 0 8px rgba(255, 107, 157, 0.6));
+      animation: pulse-glow 2s ease-in-out infinite;
     }
-    
+
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 107, 157, 0.6)); }
+      50% { filter: drop-shadow(0 0 15px rgba(255, 107, 157, 0.8)); }
+    }
+
+    .neon-text {
+      color: #ff6b9d;
+      text-shadow:
+        0 0 5px rgba(255, 107, 157, 0.5),
+        0 0 10px rgba(255, 107, 157, 0.3),
+        0 0 20px rgba(255, 107, 157, 0.2);
+    }
+
     .checkbox-custom {
-      width: 28px;
-      height: 28px;
-      border: 2px solid rgba(245, 158, 11, 0.4);
-      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      border: 2px solid rgba(255, 107, 157, 0.4);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
       flex-shrink: 0;
+      background: rgba(26, 21, 32, 0.5);
     }
-    
+
     .checkbox-custom.checked {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      border-color: #f59e0b;
+      background: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      border-color: #ff6b9d;
+      box-shadow: 0 0 15px rgba(255, 107, 157, 0.4);
     }
-    
+
     .checkbox-custom:hover {
-      border-color: #f59e0b;
+      border-color: #ff6b9d;
+      box-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
     }
-    
+
     .amount-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #f59e0b;
+      transition: all 0.2s ease;
+      background: rgba(255, 107, 157, 0.1);
+      border: 1px solid rgba(255, 107, 157, 0.3);
+      color: #ff6b9d;
     }
-    
+
     .amount-btn:hover {
-      background: rgba(245, 158, 11, 0.2);
+      background: rgba(255, 107, 157, 0.2);
+      box-shadow: 0 0 12px rgba(255, 107, 157, 0.3);
     }
-    
+
     .amount-btn:active {
       transform: scale(0.95);
     }
-    
+
     .nav-btn {
       padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: all 0.15s ease;
+      border-radius: 10px;
+      font-weight: 700;
+      transition: all 0.2s ease;
       font-size: 13px;
       letter-spacing: 0.5px;
       border: none;
@@ -135,164 +216,197 @@
       gap: 8px;
       font-family: inherit;
     }
-    
+
     .nav-btn.active {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #1c1917;
+      background: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      color: #1a1520;
+      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.35);
     }
-    
+
     .nav-btn:not(.active) {
-      background: transparent;
-      color: #a8a29e;
+      background: rgba(255, 107, 157, 0.08);
+      color: #c9a0b0;
+      border: 1px solid rgba(255, 107, 157, 0.15);
     }
-    
+
     .nav-btn:not(.active):hover {
-      color: #f5f5f4;
-      background: rgba(245, 158, 11, 0.1);
+      color: #f5e6d3;
+      background: rgba(255, 107, 157, 0.15);
+      border-color: rgba(255, 107, 157, 0.25);
     }
-    
+
     .mini-bar {
       height: 24px;
-      border-radius: 2px;
+      border-radius: 3px;
       transition: all 0.2s ease;
-      background: rgba(245, 158, 11, 0.1);
+      background: rgba(255, 107, 157, 0.1);
       position: relative;
       overflow: hidden;
     }
-    
+
     .mini-bar-fill {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: #f59e0b;
-      transition: height 0.2s ease;
+      background: linear-gradient(180deg, #ff6b9d, #ff8a80);
+      transition: height 0.3s ease;
+      box-shadow: 0 0 8px rgba(255, 107, 157, 0.4);
     }
-    
+
     input, select {
-      background: rgba(28, 25, 23, 0.8);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      border-radius: 8px;
+      background: rgba(26, 21, 32, 0.8);
+      border: 1px solid rgba(255, 107, 157, 0.2);
+      border-radius: 10px;
       padding: 14px 18px;
-      color: #f5f5f4;
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      color: #f5e6d3;
+      font-family: 'M PLUS 1 Code', monospace;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.15s ease;
+      transition: all 0.2s ease;
     }
-    
+
     input:focus, select:focus {
-      border-color: rgba(245, 158, 11, 0.5);
+      border-color: rgba(255, 107, 157, 0.5);
+      box-shadow: 0 0 15px rgba(255, 107, 157, 0.15);
     }
-    
+
     input::placeholder {
-      color: #78716c;
+      color: #8a7080;
     }
-    
+
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(10, 8, 15, 0.9);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: flex-end;
       justify-content: center;
       z-index: 50;
     }
-    
+
     .modal-content {
-      background: #1c1917;
+      background: linear-gradient(180deg, #2d1f35 0%, #1a1520 100%);
       width: 100%;
       max-width: 32rem;
-      border-radius: 16px 16px 0 0;
+      border-radius: 20px 20px 0 0;
       padding: 24px;
+      border: 1px solid rgba(255, 107, 157, 0.15);
+      border-bottom: none;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
     }
-    
+
     .add-btn {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 56px;
-      height: 56px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #1c1917;
+      background: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      color: #1a1520;
       display: flex;
       align-items: center;
       justify-content: center;
       border: none;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.25);
-      transition: transform 0.15s ease;
+      box-shadow:
+        0 8px 25px rgba(255, 107, 157, 0.4),
+        0 0 30px rgba(255, 107, 157, 0.2);
+      transition: all 0.2s ease;
     }
-    
+
     .add-btn:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow:
+        0 12px 35px rgba(255, 107, 157, 0.5),
+        0 0 40px rgba(255, 107, 157, 0.3);
     }
-    
+
     .type-btn {
       flex: 1;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 14px;
+      border-radius: 10px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 700;
       border: none;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
       font-family: inherit;
     }
-    
+
     .type-btn.active {
-      background: #f59e0b;
-      color: #1c1917;
+      background: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      color: #1a1520;
+      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
     }
-    
+
     .type-btn:not(.active) {
-      background: #292524;
-      color: #a8a29e;
+      background: rgba(255, 107, 157, 0.1);
+      color: #c9a0b0;
+      border: 1px solid rgba(255, 107, 157, 0.15);
     }
-    
+
     .submit-btn {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #1c1917;
-      font-weight: 600;
+      background: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      color: #1a1520;
+      font-weight: 700;
       border: none;
       cursor: pointer;
       font-family: inherit;
-      font-size: 14px;
-      transition: opacity 0.15s ease;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
     }
-    
+
+    .submit-btn:hover {
+      box-shadow: 0 6px 25px rgba(255, 107, 157, 0.45);
+      transform: translateY(-1px);
+    }
+
     .submit-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
+      box-shadow: none;
     }
-    
+
     .delete-btn {
       background: none;
       border: none;
-      color: #57534e;
+      color: #6a5060;
       cursor: pointer;
       padding: 4px;
-      transition: color 0.15s ease;
+      transition: all 0.2s ease;
     }
-    
+
     .delete-btn:hover {
-      color: #ef4444;
+      color: #ff6b9d;
+      filter: drop-shadow(0 0 5px rgba(255, 107, 157, 0.5));
     }
-    
+
     .icon-btn {
       background: none;
       border: none;
       cursor: pointer;
-      color: #78716c;
+      color: #8a7080;
       padding: 4px;
+      transition: color 0.2s ease;
     }
-    
+
     .icon-btn:hover {
-      color: #f5f5f4;
+      color: #f5e6d3;
+    }
+
+    .title-jp {
+      font-size: 11px;
+      color: #ff6b9d;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.8;
     }
   </style>
 </head>
@@ -512,13 +626,23 @@
         <div style={{ minHeight: '100vh', paddingBottom: '96px' }}>
           {/* Header */}
           <div style={{ padding: '48px 24px 32px' }}>
-            <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#f59e0b', letterSpacing: '-0.03em' }}>Habits</h1>
-            <p className="mono" style={{ color: '#78716c', fontSize: '13px', marginTop: '8px', letterSpacing: '0.02em' }}>{formatDate(today)}</p>
+            <p className="title-jp" style={{ marginBottom: '8px' }}>習慣トラッカー</p>
+            <h1 style={{
+              fontSize: '36px',
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, #ff6b9d, #ffb74d, #00d4ff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              letterSpacing: '-0.03em',
+              textShadow: 'none'
+            }}>Habits</h1>
+            <p className="mono" style={{ color: '#8a7080', fontSize: '13px', marginTop: '10px', letterSpacing: '0.03em' }}>{formatDate(today)}</p>
           </div>
           
           {/* Navigation */}
           <div style={{ padding: '0 24px', marginBottom: '32px' }}>
-            <div style={{ display: 'flex', gap: '8px', padding: '6px', background: 'rgba(28, 25, 23, 0.5)', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '6px', background: 'rgba(26, 21, 32, 0.6)', borderRadius: '12px', border: '1px solid rgba(255, 107, 157, 0.1)' }}>
               <button 
                 onClick={() => setView('today')} 
                 className={`nav-btn ${view === 'today' ? 'active' : ''}`}
@@ -540,10 +664,12 @@
           {view === 'today' && (
             <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {habits.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
-                  <Icon name="calendar" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
-                  <p style={{ fontSize: '14px' }}>No habits yet</p>
-                  <p style={{ fontSize: '12px', marginTop: '4px' }}>Add one to get started</p>
+                <div style={{ textAlign: 'center', padding: '64px 0', color: '#8a7080' }}>
+                  <div style={{ color: '#ff6b9d', opacity: 0.4, marginBottom: '16px' }}>
+                    <Icon name="calendar" size={48} />
+                  </div>
+                  <p style={{ fontSize: '15px', fontWeight: 500 }}>まだ習慣がありません</p>
+                  <p style={{ fontSize: '12px', marginTop: '6px', color: '#6a5060' }}>Add one to get started</p>
                 </div>
               ) : (
                 habits.map(habit => {
@@ -559,18 +685,19 @@
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <h3 style={{
-                              fontWeight: 600,
+                              fontWeight: 700,
                               fontSize: '16px',
-                              color: isComplete ? '#f59e0b' : '#e7e5e4',
+                              color: isComplete ? '#ff6b9d' : '#f5e6d3',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              letterSpacing: '-0.01em'
+                              letterSpacing: '-0.01em',
+                              textShadow: isComplete ? '0 0 20px rgba(255, 107, 157, 0.3)' : 'none'
                             }}>
                               {habit.name}
                             </h3>
                             {streak > 0 && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', flexShrink: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b9d', flexShrink: 0 }}>
                                 <span className={streak >= 7 ? 'streak-glow' : ''}>
                                   <Icon name="flame" size={18} />
                                 </span>
@@ -579,7 +706,7 @@
                             )}
                           </div>
                           {habit.type === 'amount' && (
-                            <p className="mono" style={{ fontSize: '12px', color: '#78716c', marginTop: '6px', letterSpacing: '0.02em' }}>
+                            <p className="mono" style={{ fontSize: '12px', color: '#8a7080', marginTop: '6px', letterSpacing: '0.02em' }}>
                               {log?.value || 0} / {habit.target} {habit.unit}
                             </p>
                           )}
@@ -606,7 +733,8 @@
                                 textAlign: 'center',
                                 fontWeight: 600,
                                 fontSize: '18px',
-                                color: isComplete ? '#f59e0b' : '#d6d3d1'
+                                color: isComplete ? '#ff6b9d' : '#c9a0b0',
+                                textShadow: isComplete ? '0 0 10px rgba(255, 107, 157, 0.4)' : 'none'
                               }}>
                                 {log?.value || 0}
                               </span>
@@ -631,9 +759,11 @@
           {view === 'history' && (
             <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {habits.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
-                  <Icon name="trending-up" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
-                  <p style={{ fontSize: '14px' }}>No data yet</p>
+                <div style={{ textAlign: 'center', padding: '64px 0', color: '#8a7080' }}>
+                  <div style={{ color: '#ff6b9d', opacity: 0.4, marginBottom: '16px' }}>
+                    <Icon name="trending-up" size={48} />
+                  </div>
+                  <p style={{ fontSize: '14px' }}>データがまだありません</p>
                 </div>
               ) : (
                 habits.map(habit => {
@@ -645,15 +775,15 @@
                     <div key={habit.id} className="habit-card" style={{ borderRadius: '16px', padding: '24px' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px' }}>
                         <div>
-                          <h3 style={{ fontWeight: 600, fontSize: '16px', color: '#e7e5e4', letterSpacing: '-0.01em' }}>{habit.name}</h3>
+                          <h3 style={{ fontWeight: 700, fontSize: '16px', color: '#f5e6d3', letterSpacing: '-0.01em' }}>{habit.name}</h3>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ff6b9d' }}>
                               <Icon name="flame" size={18} />
-                              <span className="streak-number" style={{ fontSize: '24px' }}>{streak}</span>
-                              <span style={{ fontSize: '13px', color: '#a8a29e', marginLeft: '2px' }}>day streak</span>
+                              <span className="streak-number" style={{ fontSize: '26px' }}>{streak}</span>
+                              <span style={{ fontSize: '13px', color: '#c9a0b0', marginLeft: '2px' }}>日連続</span>
                             </div>
-                            <div className="mono" style={{ fontSize: '13px', color: '#78716c', letterSpacing: '0.02em' }}>
-                              {rate}% last 30d
+                            <div className="mono" style={{ fontSize: '13px', color: '#8a7080', letterSpacing: '0.02em' }}>
+                              {rate}% <span style={{ opacity: 0.7 }}>30日</span>
                             </div>
                           </div>
                         </div>
@@ -684,7 +814,7 @@
                               <div className="mini-bar" style={{ width: '100%', height: '28px', borderRadius: '4px' }}>
                                 <div className="mini-bar-fill" style={{ height: `${fillPercent}%`, borderRadius: '4px' }} />
                               </div>
-                              <span className="mono" style={{ fontSize: '10px', color: isToday ? '#f59e0b' : '#57534e', fontWeight: isToday ? 600 : 400 }}>
+                              <span className="mono" style={{ fontSize: '10px', color: isToday ? '#ff6b9d' : '#6a5060', fontWeight: isToday ? 600 : 400 }}>
                                 {new Date(dateKey + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'narrow' })}
                               </span>
                             </div>
@@ -703,7 +833,10 @@
             <div className="modal-overlay" onClick={() => setShowAddHabit(false)}>
               <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '28px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#f5f5f4', letterSpacing: '-0.02em' }}>New Habit</h2>
+                  <div>
+                    <p style={{ fontSize: '11px', color: '#ff6b9d', letterSpacing: '0.2em', marginBottom: '6px', opacity: 0.8 }}>新しい習慣</p>
+                    <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#f5e6d3', letterSpacing: '-0.02em' }}>New Habit</h2>
+                  </div>
                   <button onClick={() => setShowAddHabit(false)} className="icon-btn">
                     <Icon name="x" size={24} />
                   </button>
@@ -759,7 +892,7 @@
                     disabled={!newHabit.name.trim()}
                     className="submit-btn"
                   >
-                    Add Habit
+                    追加する
                   </button>
                 </div>
               </div>

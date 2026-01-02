@@ -52,4 +52,20 @@ assert(
 const appleIconBytes = Buffer.from(appleIconHref.replace('data:image/png;base64,', ''), 'base64');
 assert(appleIconBytes.length > 1024, 'Apple touch icon data should not be empty.');
 
+const iconPath = path.join(rootDir, 'icons', 'kowloon-romance.svg');
+const iconContent = fs.readFileSync(iconPath, 'utf8');
+
+const textTagMatch = iconContent.match(/<text[^>]*>/);
+assert(textTagMatch, 'Icon should render its primary kanji as a text element.');
+const textTag = textTagMatch[0];
+
+assert(
+  /dominant-baseline="middle"/.test(textTag),
+  'Icon text should be vertically centered with dominant-baseline="middle".'
+);
+
+const yMatch = textTag.match(/y="([^"]+)"/);
+assert(yMatch, 'Icon text should declare a vertical position.');
+assert.strictEqual(yMatch[1], '256', 'Icon text should be vertically centered in the viewBox.');
+
 console.log('All style expectations passed.');

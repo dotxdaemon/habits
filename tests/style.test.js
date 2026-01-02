@@ -68,4 +68,19 @@ const yMatch = textTag.match(/y="([^"]+)"/);
 assert(yMatch, 'Icon text should declare a vertical position.');
 assert.strictEqual(yMatch[1], '256', 'Icon text should be vertically centered in the viewBox.');
 
+assert(
+  htmlContent.includes('amount-progress'),
+  'Today view should render inline amount progress styling.'
+);
+
+assert(
+  /mini-bar-fill\.(low|medium|high|complete)/.test(htmlContent),
+  'Trends mini-chart should support semantic fill states.'
+);
+
+assert(
+  /nav-btn:focus-visible/.test(htmlContent),
+  'Interactive controls should expose focus-visible styling for keyboard users.'
+);
+
 console.log('All style expectations passed.');

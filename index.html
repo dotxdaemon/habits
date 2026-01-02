@@ -1,3 +1,5 @@
+<!-- ABOUTME: Renders the Habits single-page tracker UI with inlined React and styling. -->
+<!-- ABOUTME: Provides storage, navigation, and interaction for habit tracking on web and PWA. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +11,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/kowloon-romance.svg">
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=M+PLUS+1+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -34,6 +37,15 @@
       color: #f5e6d3;
       min-height: 100vh;
       min-height: 100dvh;
+      position: relative;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 32px 20px 96px;
+      max-width: 960px;
+      margin: 0 auto;
       position: relative;
     }
 
@@ -70,18 +82,63 @@
       z-index: 1;
     }
 
+    .header-panel {
+      background: radial-gradient(circle at 20% 20%, rgba(255, 107, 157, 0.15), transparent 50%),
+        radial-gradient(circle at 80% 0%, rgba(0, 212, 255, 0.12), transparent 45%),
+        linear-gradient(145deg, rgba(45, 31, 53, 0.9), rgba(26, 21, 32, 0.85));
+      border: 1px solid rgba(255, 107, 157, 0.2);
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow:
+        0 16px 50px rgba(0, 0, 0, 0.35),
+        0 0 40px rgba(255, 107, 157, 0.08);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+
+    .header-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 183, 77, 0.12), rgba(0, 212, 255, 0.05));
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-shell {
+      padding: 10px;
+      background: rgba(26, 21, 32, 0.65);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 107, 157, 0.15);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .habit-card {
       background: linear-gradient(145deg,
-        rgba(58, 42, 68, 0.7),
-        rgba(38, 28, 48, 0.85)
+        rgba(58, 42, 68, 0.82),
+        rgba(26, 21, 32, 0.92)
       );
-      border: 1px solid rgba(255, 107, 157, 0.15);
+      border: 1px solid rgba(255, 107, 157, 0.18);
       box-shadow:
         0 4px 20px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
       transition: all 0.25s ease;
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(6px);
     }
 
     .habit-card::before {
@@ -106,22 +163,6 @@
         0 0 20px rgba(255, 107, 157, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
       transform: translateY(-2px);
-    }
-
-    /* Staggered card layouts */
-    .habit-card:nth-child(odd) {
-      margin-left: 0;
-      margin-right: 12px;
-    }
-
-    .habit-card:nth-child(even) {
-      margin-left: 12px;
-      margin-right: 0;
-    }
-
-    .habit-card:nth-child(3n) {
-      margin-left: 6px;
-      margin-right: 6px;
     }
 
     .streak-number {
@@ -623,26 +664,28 @@
       };
       
       return (
-        <div style={{ minHeight: '100vh', paddingBottom: '96px' }}>
+        <div className="page-shell">
           {/* Header */}
-          <div style={{ padding: '48px 24px 32px' }}>
-            <p className="title-jp" style={{ marginBottom: '8px' }}>習慣トラッカー</p>
-            <h1 style={{
-              fontSize: '36px',
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, #ff6b9d, #ffb74d, #00d4ff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              letterSpacing: '-0.03em',
-              textShadow: 'none'
-            }}>Habits</h1>
-            <p className="mono" style={{ color: '#8a7080', fontSize: '13px', marginTop: '10px', letterSpacing: '0.03em' }}>{formatDate(today)}</p>
+          <div className="header-panel" style={{ marginBottom: '28px' }}>
+            <div className="header-content">
+              <p className="title-jp" style={{ marginBottom: '10px' }}>習慣トラッカー</p>
+              <h1 style={{
+                fontSize: '38px',
+                fontWeight: 900,
+                background: 'linear-gradient(135deg, #ff6b9d, #ffb74d, #00d4ff)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.03em',
+                textShadow: '0 6px 30px rgba(0, 0, 0, 0.35)'
+              }}>Habits</h1>
+              <p className="mono" style={{ color: '#c9a0b0', fontSize: '13px', marginTop: '12px', letterSpacing: '0.04em' }}>{formatDate(today)}</p>
+            </div>
           </div>
           
           {/* Navigation */}
-          <div style={{ padding: '0 24px', marginBottom: '32px' }}>
-            <div style={{ display: 'flex', gap: '8px', padding: '6px', background: 'rgba(26, 21, 32, 0.6)', borderRadius: '12px', border: '1px solid rgba(255, 107, 157, 0.1)' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <div className="nav-shell" style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setView('today')} 
                 className={`nav-btn ${view === 'today' ? 'active' : ''}`}
@@ -662,7 +705,7 @@
           
           {/* Today View */}
           {view === 'today' && (
-            <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="card-stack">
               {habits.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '64px 0', color: '#8a7080' }}>
                   <div style={{ color: '#ff6b9d', opacity: 0.4, marginBottom: '16px' }}>
@@ -757,7 +800,7 @@
           
           {/* History/Trends View */}
           {view === 'history' && (
-            <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="card-stack" style={{ gap: '20px' }}>
               {habits.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '64px 0', color: '#8a7080' }}>
                   <div style={{ color: '#ff6b9d', opacity: 0.4, marginBottom: '16px' }}>

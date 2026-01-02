@@ -4,14 +4,14 @@
   "description": "Simple habit tracker with streaks",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0c0a09",
-  "theme_color": "#0c0a09",
+  "background_color": "#1a1520",
+  "theme_color": "#1a1520",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230c0a09' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23f59e0b'>✓</text></svg>",
-      "sizes": "any",
+      "src": "icons/kowloon-romance.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }

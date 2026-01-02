@@ -1,0 +1,33 @@
+<!-- ABOUTME: Neon-inspired crest for the Habits app, styled after Kowloon Generic Romance tones. -->
+<!-- ABOUTME: Serves as the primary PWA icon with layered skyline and heart motifs. -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kowloon romance icon">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1520"/>
+      <stop offset="100%" stop-color="#2d1f35"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff6b9d"/>
+      <stop offset="50%" stop-color="#ffb74d"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ff6b9d" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#ff6b9d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="url(#bg)" stroke="rgba(255,107,157,0.4)" stroke-width="6"/>
+  <circle cx="256" cy="256" r="200" fill="url(#glow)"/>
+  <g fill="none" stroke="url(#accent)" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="18" d="M180 300h-42v-58l36-12 18 22 16-12 14 20 12-20 28 34 20-46 24 32 28-18 18 28 22-38 20 6v82h-272z"/>
+    <path stroke-width="16" d="M200 198c0-32 24-58 56-58s56 26 56 58c0 44-42 74-84 110-42-36-84-66-84-110 0-32 24-58 56-58 16 0 32 8 42 20 10-12 26-20 42-20"/>
+  </g>
+  <g fill="#0c0a09" opacity="0.25">
+    <rect x="132" y="304" width="28" height="72" rx="10"/>
+    <rect x="178" y="316" width="28" height="60" rx="10"/>
+    <rect x="224" y="330" width="28" height="46" rx="10"/>
+    <rect x="270" y="318" width="28" height="58" rx="10"/>
+    <rect x="316" y="304" width="28" height="72" rx="10"/>
+    <rect x="362" y="326" width="28" height="50" rx="10"/>
+  </g>
+</svg>

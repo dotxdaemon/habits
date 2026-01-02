@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -23,11 +23,15 @@
     }
     
     body {
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #0c0a09;
       color: #f5f5f4;
       min-height: 100vh;
       min-height: 100dvh;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
     }
     
     #root {
@@ -40,9 +44,32 @@
       border: 1px solid rgba(245, 158, 11, 0.1);
       transition: all 0.2s ease;
     }
-    
+
     .habit-card:hover {
       border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    /* Staggered card layouts */
+    .habit-card:nth-child(odd) {
+      margin-left: 0;
+      margin-right: 12px;
+    }
+
+    .habit-card:nth-child(even) {
+      margin-left: 12px;
+      margin-right: 0;
+    }
+
+    .habit-card:nth-child(3n) {
+      margin-left: 6px;
+      margin-right: 6px;
+    }
+
+    .streak-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
     
     .streak-glow {
@@ -146,9 +173,9 @@
       background: rgba(28, 25, 23, 0.8);
       border: 1px solid rgba(245, 158, 11, 0.2);
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 14px 18px;
       color: #f5f5f4;
-      font-family: inherit;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
       font-size: 14px;
       outline: none;
       transition: border-color 0.15s ease;
@@ -484,14 +511,14 @@
       return (
         <div style={{ minHeight: '100vh', paddingBottom: '96px' }}>
           {/* Header */}
-          <div style={{ padding: '32px 20px 24px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', letterSpacing: '-0.025em' }}>Habits</h1>
-            <p style={{ color: '#78716c', fontSize: '14px', marginTop: '4px' }}>{formatDate(today)}</p>
+          <div style={{ padding: '48px 24px 32px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#f59e0b', letterSpacing: '-0.03em' }}>Habits</h1>
+            <p className="mono" style={{ color: '#78716c', fontSize: '13px', marginTop: '8px', letterSpacing: '0.02em' }}>{formatDate(today)}</p>
           </div>
           
           {/* Navigation */}
-          <div style={{ padding: '0 20px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', gap: '8px', padding: '4px', background: 'rgba(28, 25, 23, 0.5)', borderRadius: '8px' }}>
+          <div style={{ padding: '0 24px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '6px', background: 'rgba(28, 25, 23, 0.5)', borderRadius: '12px' }}>
               <button 
                 onClick={() => setView('today')} 
                 className={`nav-btn ${view === 'today' ? 'active' : ''}`}
@@ -511,7 +538,7 @@
           
           {/* Today View */}
           {view === 'today' && (
-            <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {habits.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
                   <Icon name="calendar" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
@@ -527,36 +554,38 @@
                     : (log?.value || 0) >= habit.target;
                   
                   return (
-                    <div key={habit.id} className="habit-card" style={{ borderRadius: '12px', padding: '16px' }}>
+                    <div key={habit.id} className="habit-card" style={{ borderRadius: '16px', padding: '20px 24px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <h3 style={{ 
-                              fontWeight: 500, 
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <h3 style={{
+                              fontWeight: 600,
+                              fontSize: '16px',
                               color: isComplete ? '#f59e0b' : '#e7e5e4',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
+                              whiteSpace: 'nowrap',
+                              letterSpacing: '-0.01em'
                             }}>
                               {habit.name}
                             </h3>
                             {streak > 0 && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b', flexShrink: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', flexShrink: 0 }}>
                                 <span className={streak >= 7 ? 'streak-glow' : ''}>
-                                  <Icon name="flame" size={14} />
+                                  <Icon name="flame" size={18} />
                                 </span>
-                                <span style={{ fontSize: '12px', fontWeight: 600 }}>{streak}</span>
+                                <span className="streak-number">{streak}</span>
                               </div>
                             )}
                           </div>
                           {habit.type === 'amount' && (
-                            <p style={{ fontSize: '12px', color: '#78716c', marginTop: '4px' }}>
+                            <p className="mono" style={{ fontSize: '12px', color: '#78716c', marginTop: '6px', letterSpacing: '0.02em' }}>
                               {log?.value || 0} / {habit.target} {habit.unit}
                             </p>
                           )}
                         </div>
                         
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px' }}>
                           {habit.type === 'checkbox' ? (
                             <div 
                               onClick={() => toggleCheckbox(habit.id)}
@@ -572,11 +601,12 @@
                               >
                                 <Icon name="minus" size={16} />
                               </button>
-                              <span style={{ 
-                                width: '32px', 
-                                textAlign: 'center', 
-                                fontWeight: 600, 
-                                color: isComplete ? '#f59e0b' : '#d6d3d1' 
+                              <span className="mono" style={{
+                                width: '40px',
+                                textAlign: 'center',
+                                fontWeight: 600,
+                                fontSize: '18px',
+                                color: isComplete ? '#f59e0b' : '#d6d3d1'
                               }}>
                                 {log?.value || 0}
                               </span>
@@ -599,7 +629,7 @@
           
           {/* History/Trends View */}
           {view === 'history' && (
-            <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {habits.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '64px 0', color: '#78716c' }}>
                   <Icon name="trending-up" size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
@@ -612,30 +642,31 @@
                   const last7 = getLast7Days();
                   
                   return (
-                    <div key={habit.id} className="habit-card" style={{ borderRadius: '12px', padding: '16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div key={habit.id} className="habit-card" style={{ borderRadius: '16px', padding: '24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px' }}>
                         <div>
-                          <h3 style={{ fontWeight: 500, color: '#e7e5e4' }}>{habit.name}</h3>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b' }}>
-                              <Icon name="flame" size={14} />
-                              <span style={{ fontSize: '12px' }}>{streak} day streak</span>
+                          <h3 style={{ fontWeight: 600, fontSize: '16px', color: '#e7e5e4', letterSpacing: '-0.01em' }}>{habit.name}</h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b' }}>
+                              <Icon name="flame" size={18} />
+                              <span className="streak-number" style={{ fontSize: '24px' }}>{streak}</span>
+                              <span style={{ fontSize: '13px', color: '#a8a29e', marginLeft: '2px' }}>day streak</span>
                             </div>
-                            <div style={{ fontSize: '12px', color: '#78716c' }}>
+                            <div className="mono" style={{ fontSize: '13px', color: '#78716c', letterSpacing: '0.02em' }}>
                               {rate}% last 30d
                             </div>
                           </div>
                         </div>
-                        <button 
+                        <button
                           onClick={() => deleteHabit(habit.id)}
                           className="delete-btn"
                         >
-                          <Icon name="trash-2" size={16} />
+                          <Icon name="trash-2" size={18} />
                         </button>
                       </div>
                       
                       {/* Mini chart */}
-                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '4px', height: '32px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '6px', height: '40px' }}>
                         {last7.map(dateKey => {
                           const log = logs[dateKey]?.[habit.id];
                           let fillPercent = 0;
@@ -649,11 +680,11 @@
                           const isToday = dateKey === today;
                           
                           return (
-                            <div key={dateKey} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                              <div className="mini-bar" style={{ width: '100%' }}>
-                                <div className="mini-bar-fill" style={{ height: `${fillPercent}%` }} />
+                            <div key={dateKey} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                              <div className="mini-bar" style={{ width: '100%', height: '28px', borderRadius: '4px' }}>
+                                <div className="mini-bar-fill" style={{ height: `${fillPercent}%`, borderRadius: '4px' }} />
                               </div>
-                              <span style={{ fontSize: '9px', color: isToday ? '#f59e0b' : '#57534e' }}>
+                              <span className="mono" style={{ fontSize: '10px', color: isToday ? '#f59e0b' : '#57534e', fontWeight: isToday ? 600 : 400 }}>
                                 {new Date(dateKey + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'narrow' })}
                               </span>
                             </div>
@@ -670,15 +701,15 @@
           {/* Add Habit Modal */}
           {showAddHabit && (
             <div className="modal-overlay" onClick={() => setShowAddHabit(false)}>
-              <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#f5f5f4' }}>New Habit</h2>
+              <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '28px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#f5f5f4', letterSpacing: '-0.02em' }}>New Habit</h2>
                   <button onClick={() => setShowAddHabit(false)} className="icon-btn">
                     <Icon name="x" size={24} />
                   </button>
                 </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <input
                     type="text"
                     placeholder="Habit name"

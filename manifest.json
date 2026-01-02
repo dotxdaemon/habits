@@ -1,14 +1,14 @@
 {
-  "name": "Habit Tracker",
-  "short_name": "Habits",
+  "name": "習慣 | Habits",
+  "short_name": "習慣",
   "description": "Simple habit tracker with streaks",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0c0a09",
-  "theme_color": "#0c0a09",
+  "background_color": "#1a1520",
+  "theme_color": "#1a1520",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230c0a09' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23f59e0b'>✓</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%231a1520'/><stop offset='100%25' stop-color='%232d1f35'/></linearGradient><linearGradient id='glow' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23ff6b9d'/><stop offset='100%25' stop-color='%23ffb74d'/></linearGradient></defs><rect fill='url(%23bg)' width='100' height='100' rx='20'/><text x='50' y='70' font-size='48' text-anchor='middle' fill='url(%23glow)' font-family='sans-serif' font-weight='bold'>習</text></svg>",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

@@ -32,4 +32,14 @@ assert(
   'Document should link to the Kowloon-inspired favicon.'
 );
 
+const appleIconMatch = htmlContent.match(/rel="apple-touch-icon"[^>]*href="([^"]+)"/);
+assert(appleIconMatch && appleIconMatch[1], 'Document should reference the Apple touch icon.');
+const appleIconHref = appleIconMatch[1];
+assert(
+  appleIconHref.startsWith('data:image/png;base64,'),
+  'Apple touch icon should be an embedded PNG data URL.'
+);
+const appleIconBytes = Buffer.from(appleIconHref.replace('data:image/png;base64,', ''), 'base64');
+assert(appleIconBytes.length > 1024, 'Apple touch icon data should not be empty.');
+
 console.log('All style expectations passed.');

@@ -32,6 +32,16 @@ assert(
   'Document should link to the Kowloon-inspired favicon.'
 );
 
+assert(
+  htmlContent.includes('data-sync-trigger'),
+  'Document should expose a sync control for sharing data across devices.'
+);
+
+assert(
+  htmlContent.includes('?data=') || htmlContent.includes('URLSearchParams'),
+  'Document should import shared data from sync links.'
+);
+
 const appleIconMatch = htmlContent.match(/rel="apple-touch-icon"[^>]*href="([^"]+)"/);
 assert(appleIconMatch && appleIconMatch[1], 'Document should reference the Apple touch icon.');
 const appleIconHref = appleIconMatch[1];

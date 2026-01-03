@@ -1,9 +1,12 @@
+// ABOUTME: Configures Vite for building and serving the Habits application.
+// ABOUTME: Applies React tooling, PWA support, and the deployment base path.
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/habits/',
   plugins: [
     react(),
     VitePWA({

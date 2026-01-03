@@ -1,23 +1,20 @@
-# Grocery List - Smart Shopping PWA
+# 習慣 | Habits - Minimalist Habit Tracker PWA
 
-A fast, offline-first grocery list app with intelligent item parsing, category-based sorting, and one-thumb-quick mobile experience.
+A fast, offline-first habit tracker with streak counting, completion stats, and zen aesthetics.
 
 ## Features
 
-- **Smart Quick Add**: Parse quantities, units, and item names automatically
-  - "2 milk" → 2× milk
-  - "1.5 lb chicken" → 1.5 lb chicken
-  - "apples 3" → 3× apples
+- **Two Habit Types**:
+  - **Checkbox**: Simple yes/no completion (e.g., "Meditate", "Read")
+  - **Amount**: Track quantity with targets (e.g., "Drink 8 glasses of water", "Run 5 miles")
 
-- **Category-Based Organization**: Items auto-categorized (Produce, Dairy, Meat, Pantry, Frozen, Bakery, Household, Other)
+- **Streak Tracking**: Visual streak counter that updates daily
 
-- **Flexible Sorting**: Category-based or manual ordering, with purchased items at top or bottom
+- **Completion Stats**: 30-day completion rate with 7-day mini calendar
 
-- **Offline-First**: Works completely offline with IndexedDB storage
+- **Offline-First**: Works completely offline with IndexedDB + localStorage
 
-- **Multiple Lists**: Create separate lists for different stores (Costco, Safeway, etc.)
-
-- **Search & Filter**: Quickly find items within your list
+- **Clean UI**: Minimalist design inspired by Japanese aesthetics
 
 - **Import/Export**: JSON-based data backup and migration
 
@@ -46,9 +43,6 @@ pnpm preview
 
 # Run tests
 pnpm test
-
-# Run E2E tests (after implementation)
-pnpm e2e
 ```
 
 ## PWA Installation
@@ -56,8 +50,8 @@ pnpm e2e
 ### Mobile (iOS/Android)
 
 1. Open the app in your mobile browser
-2. **iOS**: Tap the Share button → "Add to Home Screen"
-3. **Android**: Tap the menu (⋮) → "Install app" or "Add to Home Screen"
+2. **iOS**: Tap Share → "Add to Home Screen"
+3. **Android**: Tap menu (⋮) → "Install app"
 
 The app will appear on your home screen and work offline.
 
@@ -65,98 +59,122 @@ The app will appear on your home screen and work offline.
 
 1. Open the app in your browser
 2. Look for the install icon (⊕) in the address bar
-3. Click "Install" in the prompt
-4. The app opens in its own window
+3. Click "Install"
 
 ## Usage
 
-### Creating Lists
+### Creating Habits
 
-1. On the home screen, click "+ Create New List"
-2. Name your list (e.g., "Weekly Shop", "Costco Run")
-3. Click "Create"
+1. Click "+ Add Habit"
+2. Enter habit name
+3. Choose type:
+   - **Checkbox** for yes/no habits
+   - **Amount** for quantity-based habits (set target and unit)
+4. Click "Create"
 
-### Adding Items
+### Tracking Daily
 
-Use the quick-add input at the bottom of any list:
+**Today Tab:**
+- Checkbox habits: Tap to toggle complete/incomplete
+- Amount habits: Use +/- buttons to adjust value
+- Streak counter shows consecutive days completed
 
-- Type naturally: `2 milk`, `1.5 lb chicken breast`, `apples x3`
-- Press Enter or tap "Add"
-- Items are automatically categorized and sorted
+**Trends Tab:**
+- View 30-day completion percentage
+- See 7-day mini calendar for each habit
+- Export/import your data
 
-### Managing Items
+### Streaks
 
-- **Check off**: Tap the checkbox to mark purchased
-- **Delete**: Tap the × button
-- **Search**: Use the search bar to filter items
-- **Clear purchased**: Remove all checked items with one tap
-- **Toggle placement**: Move purchased items to top or bottom
+- Streaks count consecutive days of completion
+- If today is incomplete, streak starts from yesterday
+- Checkbox habit: Complete when checked
+- Amount habit: Complete when value ≥ target
 
 ### Exporting Data
 
-1. Open any list
-2. Tap "Export" in the header
-3. Copy the JSON to clipboard or save the file
-4. Share via email, cloud storage, etc.
+1. Go to "Trends" tab
+2. Tap "Export Data"
+3. Copy JSON to clipboard
+4. Save to file or share via email/cloud
 
 ### Importing Data
 
-1. Open any list (or create a new one)
-2. Tap "Import"
+1. Go to "Trends" tab
+2. Tap "Import Data"
 3. Paste your JSON export
-4. Choose "Replace" to overwrite or "Merge" to combine
+4. Data will replace current habits and logs
 
 ## Data Model
 
-### Storage (IndexedDB)
+### Storage
 
-- **lists**: grocery lists with metadata and sort configuration
-- **items**: individual grocery items with quantity, unit, category, notes
-- **categories**: 8 default categories with custom ordering
-- **itemHistory**: autocomplete suggestions and favorites (v1.1)
-- **storeProfiles**: custom aisle orders per store (v1.1)
+- **IndexedDB**: Habits metadata
+- **localStorage**: Daily logs (keyed by YYYY-MM-DD)
+
+### Habits Table
+
+```typescript
+{
+  id: string;           // Unique identifier
+  name: string;         // "Meditate", "Drink water"
+  type: 'checkbox' | 'amount';
+  target?: number;      // For amount type
+  unit?: string;        // "glasses", "minutes", "pages"
+  createdAt: string;    // YYYY-MM-DD
+}
+```
+
+### Logs Structure
+
+```typescript
+{
+  "2026-01-03": {
+    "habit-id-1": { done: true },
+    "habit-id-2": { value: 8 }
+  }
+}
+```
 
 ### Export Format
 
 ```json
 {
-  "lists": [...],
-  "items": [...],
-  "categories": [...],
-  "itemHistory": [...],
-  "storeProfiles": [...],
+  "habits": [...],
+  "logs": { ... },
   "exportedAt": "2026-01-03T17:00:00.000Z"
 }
 ```
 
 ## Design Philosophy
 
-### Offline-First
+### Minimalist
 
-- All data stored locally in IndexedDB
-- No network required after initial load
-- Service worker caches app shell for instant loading
+- No accounts, no login
+- No gamification or badges
+- Just habits, streaks, and stats
+- Japanese-inspired aesthetics (stone color palette)
 
 ### Privacy-First
 
 - No analytics or tracking
 - No external API calls
-- Your data stays on your device
+- Data stays on your device
 - Export/import for user-controlled backups
+
+### Offline-First
+
+- All data stored locally
+- No network required after initial load
+- Service worker caches app shell
+- Works on planes, trains, anywhere
 
 ### Mobile-Optimized
 
 - One-thumb-quick interactions
 - Large tap targets (44px+)
-- Sticky header and fixed quick-add input
-- Keyboard-friendly on desktop
-
-### Smart Defaults
-
-- Auto-categorization based on common groceries
-- Sensible sort order (category → alphabetical)
-- Remember item history for autocomplete
-- No configuration needed to get started
+- Dark theme by default (stone palette)
+- Smooth animations, reduced motion support
 
 ## Architecture
 
@@ -164,76 +182,62 @@ Use the quick-add input at the bottom of any list:
 
 ```
 src/
-├── db/          # Dexie (IndexedDB) schema and queries
-├── domain/      # Business logic (parsing, sorting, inference)
-├── ui/          # Reusable React components
-├── pages/       # Top-level views (Lists, List Detail)
+├── db/          # Dexie (IndexedDB) + localStorage
+├── domain/      # Streak calculation, completion stats
+├── pages/       # TodayView, TrendsView
 └── store.ts     # Zustand state management
 ```
 
 ### Domain Logic
 
-**Parsing** (`src/domain/parsing.ts`):
-- Regex-based quantity/unit extraction
-- Fuzzy matching for autocomplete
-- Preserves original input for safety
+**Streaks** (`src/domain/streaks.ts`):
+- Calculate current streak (consecutive days)
+- Calculate completion rate (30-day percentage)
+- Get last 7 days for mini calendar
+- Format dates for display
 
-**Sorting** (`src/domain/sorting.ts`):
-- Category-based grouping with user-defined order
-- Purchased/unpurchased split
-- Manual drag-and-drop mode (v1.1)
-- Alphabetical within categories
+**Storage** (`src/db/queries.ts`):
+- CRUD operations for habits
+- Log operations (get, update, toggle)
+- Export/import with validation
 
-**Category Inference** (`src/domain/sorting.ts`):
-- Keyword matching for common items
-- Item history lookup
-- Falls back to "Other" for unknown items
+## Testing
 
-## Future: Cloud Sync (v2)
+All domain logic is tested:
 
-*Note: v1 is fully self-contained with no cloud dependencies. Cloud sync is a planned future feature.*
+```bash
+pnpm test
+```
 
-### Approach Options
+Tests cover:
+- Streak calculation (edge cases)
+- Completion rate calculation
+- Multi-day history tracking
+- Date formatting
 
-**Option A: Simple Token-Based Sync**
-- Generate unique sync code per device
-- POST JSON to serverless endpoint (Cloudflare Workers, Vercel, etc.)
-- Other devices fetch via same code
-- Time-limited (24-48 hours), auto-expire
-- No accounts, no authentication
+## Future Features (v1.1)
 
-**Option B: CRDTs for Real-Time Sync**
-- Conflict-free replicated data types
-- WebSocket or long-polling for live updates
-- Works with Yjs, Automerge, or custom CRDT layer
-- More complex but supports true multi-device collaboration
-
-**Option C: End-to-End Encrypted Sync**
-- User-generated encryption key (passphrase or QR code)
-- Encrypted JSON stored in cloud (S3, R2, etc.)
-- Client-side decrypt only
-- Maximum privacy, no server can read data
-
-### Recommended: Start with Option A
-
-- Minimal server requirements
-- Easy to self-host
-- Maintains privacy-first philosophy
-- Can migrate to Options B/C later
+- Habit categories/tags
+- Custom colors per habit
+- Notes per daily log
+- Reminder notifications (PWA)
+- Monthly/yearly views
+- Longest streak ever stat
+- Habit archiving
 
 ## Contributing
 
 Contributions welcome! Please:
 
 1. Write tests for new features
-2. Follow existing code style (ESLint + Prettier)
+2. Follow existing code style
 3. Keep dependencies minimal
 4. Maintain offline-first approach
-5. No analytics or tracking dependencies
+5. No analytics or tracking
 
 ## License
 
-MIT License - see LICENSE file
+MIT License
 
 ## Credits
 
@@ -248,4 +252,4 @@ Built with:
 
 ---
 
-**Made for fast, friction-free grocery shopping. No accounts, no tracking, no cloud lock-in.**
+**Made for building lasting habits. No accounts, no tracking, no cloud lock-in.**

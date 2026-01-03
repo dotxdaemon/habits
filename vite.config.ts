@@ -10,10 +10,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['vite.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'Grocery List - Smart Shopping Lists',
-        short_name: 'Grocery List',
-        description: 'Fast, offline-first grocery list app with smart parsing and category sorting',
-        theme_color: '#2563eb',
+        name: 'Habit Tracker - Daily Habits & Streaks',
+        short_name: 'Habits',
+        description: 'Fast, offline-first habit tracker with streaks and completion stats',
+        theme_color: '#1c1917',
         icons: [
           {
             src: 'icon-192.png',

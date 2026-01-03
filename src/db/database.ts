@@ -1,45 +1,31 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type {
-  GroceryList,
-  GroceryItem,
-  Category,
-  ItemHistory,
-  StoreProfile,
-} from './schema';
-import { DEFAULT_CATEGORIES } from './schema';
-import { v4 as uuidv4 } from './uuid';
+import type { Habit, Settings } from './schema';
 
-export class GroceryDatabase extends Dexie {
-  lists!: EntityTable<GroceryList, 'id'>;
-  items!: EntityTable<GroceryItem, 'id'>;
-  categories!: EntityTable<Category, 'id'>;
-  itemHistory!: EntityTable<ItemHistory, 'id'>;
-  storeProfiles!: EntityTable<StoreProfile, 'id'>;
+export class HabitDatabase extends Dexie {
+  habits!: EntityTable<Habit, 'id'>;
+  settings!: EntityTable<Settings & { id: string }, 'id'>;
 
   constructor() {
-    super('GroceryListDB');
+    super('HabitTrackerDB');
 
     this.version(1).stores({
-      lists: 'id, name, createdAt, updatedAt',
-      items: 'id, listId, name, isPurchased, categoryId, createdAt',
-      categories: 'id, name, defaultOrder',
-      itemHistory: 'id, nameCanonical, lastUsedAt, isFavorite',
-      storeProfiles: 'id, name',
+      habits: 'id, name, type, createdAt, archived',
+      settings: 'id',
     });
   }
 
   async initialize() {
-    // Initialize default categories if they don't exist
-    const existingCategories = await this.categories.count();
-    if (existingCategories === 0) {
-      const categories = DEFAULT_CATEGORIES.map((cat) => ({
-        id: uuidv4(),
-        ...cat,
-      }));
-      await this.categories.bulkAdd(categories);
+    // Initialize default settings if they don't exist
+    const existingSettings = await this.settings.count();
+    if (existingSettings === 0) {
+      await this.settings.add({
+        id: 'default',
+        theme: 'light',
+        notifications: false,
+      });
     }
   }
 }
 
 // Create a singleton instance
-export const db = new GroceryDatabase();
+export const db = new HabitDatabase();

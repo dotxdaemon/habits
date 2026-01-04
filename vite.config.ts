@@ -11,22 +11,18 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['vite.svg', 'icon-192.png', 'icon-512.png'],
+      includeAssets: ['vite.svg', 'icon.svg'],
       manifest: {
         name: 'Habit Tracker - Daily Habits & Streaks',
         short_name: 'Habits',
         description: 'Fast, offline-first habit tracker with streaks and completion stats',
+        start_url: '/habits/',
         theme_color: '#1c1917',
         icons: [
           {
-            src: 'icon-192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: 'icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
           },
         ],
       },

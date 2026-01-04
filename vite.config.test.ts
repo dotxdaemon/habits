@@ -13,12 +13,23 @@ describe('vite configuration', () => {
     expect(configFile).toContain("base: '/habits/',");
   });
 
-  it('references assets through the base url placeholder in index.html', () => {
+  it('references static assets relative to the deployed base path', () => {
     const indexHtml = readFileSync(resolve(currentDirectory, './index.html'), 'utf-8');
 
-    expect(indexHtml).toContain('%BASE_URL%manifest.json');
-    expect(indexHtml).toContain('%BASE_URL%icon-192.png');
-    expect(indexHtml).toContain('%BASE_URL%icon-512.png');
-    expect(indexHtml).toContain('%BASE_URL%src/main.tsx');
+    expect(indexHtml).toContain('href="manifest.webmanifest"');
+    expect(indexHtml).toContain('href="icon.svg"');
+    expect(indexHtml).toContain('src="/src/main.tsx"');
+  });
+});
+
+describe('web manifest', () => {
+  it('uses the GitHub Pages base path for installation and icons', () => {
+    const manifest = readFileSync(resolve(currentDirectory, './public/manifest.webmanifest'), 'utf-8');
+    const parsed = JSON.parse(manifest);
+
+    expect(parsed.start_url).toBe('/habits/');
+    parsed.icons.forEach((icon: { src: string }) => {
+      expect(icon.src).toBe('icon.svg');
+    });
   });
 });

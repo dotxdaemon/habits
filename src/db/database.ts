@@ -1,5 +1,17 @@
+// ABOUTME: Handles IndexedDB persistence for habits and settings.
+// ABOUTME: Configures Dexie schema and initialization helpers.
 import Dexie, { type EntityTable } from 'dexie';
 import type { Habit, Settings } from './schema';
+
+type SettingsTable = EntityTable<Settings & { id: string }, 'id'>;
+
+export async function ensureDefaultSettings(settingsTable: SettingsTable) {
+  await settingsTable.put({
+    id: 'default',
+    theme: 'light',
+    notifications: false,
+  });
+}
 
 export class HabitDatabase extends Dexie {
   habits!: EntityTable<Habit, 'id'>;
@@ -12,18 +24,14 @@ export class HabitDatabase extends Dexie {
       habits: 'id, name, type, createdAt, archived',
       settings: 'id',
     });
+
+    this.habits = this.table('habits');
+    this.settings = this.table('settings');
   }
 
   async initialize() {
     // Initialize default settings if they don't exist
-    const existingSettings = await this.settings.count();
-    if (existingSettings === 0) {
-      await this.settings.add({
-        id: 'default',
-        theme: 'light',
-        notifications: false,
-      });
-    }
+    await ensureDefaultSettings(this.settings);
   }
 }
 

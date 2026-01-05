@@ -1,3 +1,5 @@
+// ABOUTME: Manages habit CRUD operations and persistence helpers.
+// ABOUTME: Handles log interactions and date utilities for the tracker.
 import { db } from './database';
 import { v4 as uuidv4 } from './uuid';
 import type { Habit, HabitLogs, LogEntry } from './schema';
@@ -15,6 +17,7 @@ export async function createHabit(data: {
   const today = getDateKey(new Date());
   const newHabit: Habit = {
     id: uuidv4(),
+    archived: false,
     ...data,
     createdAt: today,
   };
@@ -23,7 +26,12 @@ export async function createHabit(data: {
 }
 
 export async function getHabits(): Promise<Habit[]> {
-  return await db.habits.where('archived').notEqual(1).toArray();
+  const habits = await db.habits.toArray();
+  return habits
+    .filter((habit) => habit.archived !== 1 && habit.archived !== true)
+    .map((habit) =>
+      habit.archived === undefined ? { ...habit, archived: false } : habit
+    );
 }
 
 export async function getHabit(id: string): Promise<Habit | undefined> {

@@ -1,6 +1,6 @@
 // ABOUTME: Renders the Today view with daily habit controls and manage mode.
-// ABOUTME: Supports quick completion, streak visibility, and modal habit creation.
-import { useState } from 'react';
+// ABOUTME: Supports quick completion, streak visibility, and inline habit creation.
+import { type FormEvent, useState } from 'react';
 import { useAppStore } from '../store';
 import { createHabit, deleteHabit, toggleCheckbox, updateAmount, getToday } from '../db/queries';
 import { calculateStreak } from '../domain/streaks';
@@ -12,17 +12,23 @@ interface Props {
 
 export function TodayView({ onRefresh }: Props) {
   const { habits, logs } = useAppStore();
-  const [showAddHabit, setShowAddHabit] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
-  const [newHabit, setNewHabit] = useState({ name: '', type: 'checkbox' as 'checkbox' | 'amount', target: 1, unit: '' });
+  const [newHabitName, setNewHabitName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
   const today = getToday();
 
-  const handleAddHabit = async () => {
-    if (!newHabit.name.trim()) return;
-    await createHabit(newHabit);
-    setNewHabit({ name: '', type: 'checkbox', target: 1, unit: '' });
-    setShowAddHabit(false);
-    await onRefresh();
+  const handleQuickAdd = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = newHabitName.trim();
+    if (!name) return;
+    setIsAdding(true);
+    try {
+      await createHabit({ name, type: 'checkbox' });
+      setNewHabitName('');
+      await onRefresh();
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleToggleCheckbox = async (habitId: string) => {
@@ -44,7 +50,18 @@ export function TodayView({ onRefresh }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <form onSubmit={handleQuickAdd} className="flex-1">
+          <input
+            type="text"
+            value={newHabitName}
+            onChange={(e) => setNewHabitName(e.target.value)}
+            placeholder="Add a habit"
+            className="w-full px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
+            disabled={isAdding}
+            aria-label="Add habit"
+          />
+        </form>
         <button
           onClick={() => setIsManaging((prev) => !prev)}
           className={'px-3 py-2 rounded-lg text-sm font-medium border border-stone-700 transition ' + (
@@ -53,13 +70,6 @@ export function TodayView({ onRefresh }: Props) {
           aria-pressed={isManaging}
         >
           Manage
-        </button>
-        <button
-          onClick={() => setShowAddHabit(true)}
-          className="px-3 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg"
-          aria-label="Add habit"
-        >
-          +
         </button>
       </div>
 
@@ -78,82 +88,10 @@ export function TodayView({ onRefresh }: Props) {
         ))}
         {habits.length === 0 && (
           <div className="text-center py-10 text-stone-500">
-            No habits yet. Tap + to add one.
+            No habits yet. Type a habit name and press Enter to add one.
           </div>
         )}
       </div>
-
-      {showAddHabit && (
-        <div className="rounded-lg border border-stone-800 bg-stone-900/60 p-4 space-y-3" aria-label="Add habit">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-stone-50">Add Habit</h2>
-            <button
-              onClick={() => setShowAddHabit(false)}
-              className="text-stone-400 hover:text-stone-200"
-              aria-label="Close add habit"
-            >
-              ×
-            </button>
-          </div>
-          <input
-            type="text"
-            value={newHabit.name}
-            onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
-            placeholder="Habit name (e.g., Meditate, Drink water)"
-            className="w-full px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-            autoFocus
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={() => setNewHabit({ ...newHabit, type: 'checkbox', target: 1, unit: '' })}
-              className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'checkbox' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
-            >
-              Checkbox
-            </button>
-            <button
-              onClick={() => setNewHabit({ ...newHabit, type: 'amount' })}
-              className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'amount' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
-            >
-              Amount
-            </button>
-          </div>
-          {newHabit.type === 'amount' && (
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="number"
-                value={newHabit.target}
-                onChange={(e) => setNewHabit({ ...newHabit, target: parseInt(e.target.value) || 1 })}
-                placeholder="Target"
-                className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-              />
-              <input
-                type="text"
-                value={newHabit.unit}
-                onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
-                placeholder="Unit (e.g., glasses, minutes)"
-                className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-              />
-            </div>
-          )}
-          <div className="flex gap-2">
-            <button
-              onClick={handleAddHabit}
-              className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-            >
-              Create
-            </button>
-            <button
-              onClick={() => {
-                setShowAddHabit(false);
-                setNewHabit({ name: '', type: 'checkbox', target: 1, unit: '' });
-              }}
-              className="flex-1 py-2 bg-stone-900 rounded-lg border border-stone-700 text-stone-200 hover:bg-stone-800"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

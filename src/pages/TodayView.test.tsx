@@ -32,12 +32,12 @@ describe('TodayView', () => {
     expect(screen.getByRole('button', { name: /delete habit/i })).toBeInTheDocument();
   });
 
-  it('opens a modal for adding habits while keeping the list visible', () => {
+  it('shows an inline add form without changing the surrounding layout', () => {
     render(<TodayView onRefresh={async () => {}} />);
 
     fireEvent.click(screen.getByRole('button', { name: /add habit/i }));
 
-    expect(screen.getByRole('dialog', { name: /add habit/i })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: /add habit/i })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText(/habit name/i)).toBeInTheDocument();
     expect(screen.getByText('Read')).toBeInTheDocument();
   });

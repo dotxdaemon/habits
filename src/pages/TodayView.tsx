@@ -84,80 +84,73 @@ export function TodayView({ onRefresh }: Props) {
       </div>
 
       {showAddHabit && (
-        <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center px-4 py-6 z-50">
-          <div
-            className="bg-stone-800 rounded-2xl p-4 sm:p-6 w-full sm:max-w-lg border border-stone-700 shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Add habit"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-stone-50">Add Habit</h2>
-              <button
-                onClick={() => setShowAddHabit(false)}
-                className="text-stone-400 hover:text-stone-200"
-                aria-label="Close add habit"
-              >
-                ×
-              </button>
+        <div className="rounded-lg border border-stone-800 bg-stone-900/60 p-4 space-y-3" aria-label="Add habit">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-stone-50">Add Habit</h2>
+            <button
+              onClick={() => setShowAddHabit(false)}
+              className="text-stone-400 hover:text-stone-200"
+              aria-label="Close add habit"
+            >
+              ×
+            </button>
+          </div>
+          <input
+            type="text"
+            value={newHabit.name}
+            onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
+            placeholder="Habit name (e.g., Meditate, Drink water)"
+            className="w-full px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => setNewHabit({ ...newHabit, type: 'checkbox', target: 1, unit: '' })}
+              className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'checkbox' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
+            >
+              Checkbox
+            </button>
+            <button
+              onClick={() => setNewHabit({ ...newHabit, type: 'amount' })}
+              className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'amount' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
+            >
+              Amount
+            </button>
+          </div>
+          {newHabit.type === 'amount' && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="number"
+                value={newHabit.target}
+                onChange={(e) => setNewHabit({ ...newHabit, target: parseInt(e.target.value) || 1 })}
+                placeholder="Target"
+                className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
+              />
+              <input
+                type="text"
+                value={newHabit.unit}
+                onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
+                placeholder="Unit (e.g., glasses, minutes)"
+                className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
+              />
             </div>
-            <input
-              type="text"
-              value={newHabit.name}
-              onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
-              placeholder="Habit name (e.g., Meditate, Drink water)"
-              className="w-full px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg mb-3 text-stone-50"
-              autoFocus
-            />
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => setNewHabit({ ...newHabit, type: 'checkbox', target: 1, unit: '' })}
-                className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'checkbox' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
-              >
-                Checkbox
-              </button>
-              <button
-                onClick={() => setNewHabit({ ...newHabit, type: 'amount' })}
-                className={'flex-1 px-4 py-2 rounded-lg text-sm font-medium ' + (newHabit.type === 'amount' ? 'bg-blue-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-700')}
-              >
-                Amount
-              </button>
-            </div>
-            {newHabit.type === 'amount' && (
-              <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                <input
-                  type="number"
-                  value={newHabit.target}
-                  onChange={(e) => setNewHabit({ ...newHabit, target: parseInt(e.target.value) || 1 })}
-                  placeholder="Target"
-                  className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-                />
-                <input
-                  type="text"
-                  value={newHabit.unit}
-                  onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
-                  placeholder="Unit (e.g., glasses, minutes)"
-                  className="flex-1 px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-                />
-              </div>
-            )}
-            <div className="flex gap-2">
-              <button
-                onClick={handleAddHabit}
-                className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-              >
-                Create
-              </button>
-              <button
-                onClick={() => {
-                  setShowAddHabit(false);
-                  setNewHabit({ name: '', type: 'checkbox', target: 1, unit: '' });
-                }}
-                className="flex-1 py-2 bg-stone-900 rounded-lg border border-stone-700 text-stone-200 hover:bg-stone-800"
-              >
-                Cancel
-              </button>
-            </div>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddHabit}
+              className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+            >
+              Create
+            </button>
+            <button
+              onClick={() => {
+                setShowAddHabit(false);
+                setNewHabit({ name: '', type: 'checkbox', target: 1, unit: '' });
+              }}
+              className="flex-1 py-2 bg-stone-900 rounded-lg border border-stone-700 text-stone-200 hover:bg-stone-800"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}

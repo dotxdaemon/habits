@@ -1,7 +1,8 @@
+// ABOUTME: Renders the Trends view with compact habit summaries.
+// ABOUTME: Expands a selected habit to show a shared weekday grid for recent history.
 import { useState } from 'react';
 import { useAppStore } from '../store';
 import { calculateCompletionRate, getLast7Days, getShortDayName } from '../domain/streaks';
-import { exportData, importData } from '../db/queries';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -9,123 +10,76 @@ interface Props {
 
 export function TrendsView({ onRefresh }: Props) {
   const { habits, logs } = useAppStore();
-  const [showExport, setShowExport] = useState(false);
-  const [exportJson, setExportJson] = useState('');
-
-  const handleExport = async () => {
-    const data = await exportData();
-    const json = JSON.stringify(data, null, 2);
-    setExportJson(json);
-    setShowExport(true);
-  };
-
-  const handleImport = async () => {
-    const input = prompt('Paste your export JSON:');
-    if (!input) return;
-
-    try {
-      const data = JSON.parse(input);
-      await importData(data, 'replace');
-      alert('Data imported successfully!');
-      await onRefresh();
-    } catch (error) {
-      alert('Failed to import data. Please check the JSON format.');
-    }
-  };
+  const [expandedHabitId, setExpandedHabitId] = useState<string | null>(null);
+  void onRefresh;
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <button
-          onClick={handleExport}
-          className="flex-1 py-3 bg-stone-800 border border-stone-700 rounded-lg hover:bg-stone-700"
-        >
-          Export Data
-        </button>
-        <button
-          onClick={handleImport}
-          className="flex-1 py-3 bg-stone-800 border border-stone-700 rounded-lg hover:bg-stone-700"
-        >
-          Import Data
-        </button>
-      </div>
+    <div className="space-y-3">
+      {habits.map((habit) => {
+        const completionRate = calculateCompletionRate(habit, logs, 30);
+        const last7Days = getLast7Days(habit, logs);
+        const isExpanded = expandedHabitId === habit.id;
 
-      <div className="space-y-3">
-        {habits.map((habit) => {
-          const completionRate = calculateCompletionRate(habit, logs, 30);
-          const last7Days = getLast7Days(habit, logs);
-
-          return (
-            <div key={habit.id} className="bg-stone-800 p-4 rounded-lg border border-stone-700">
-              <h3 className="text-lg font-semibold mb-2">{habit.name}</h3>
-              
-              <div className="mb-3">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-stone-400">30-day completion</span>
-                  <span className="font-medium">{completionRate}%</span>
+        return (
+          <div key={habit.id} className="rounded-lg border border-stone-800 bg-stone-900/60">
+            <button
+              onClick={() => setExpandedHabitId(isExpanded ? null : habit.id)}
+              className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-stone-800 transition"
+              aria-expanded={isExpanded}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-stone-400">30-day</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-lg font-semibold text-stone-50 truncate">{habit.name}</div>
+                  <div className="text-sm text-stone-300">{completionRate}%</div>
                 </div>
-                <div className="w-full bg-stone-700 rounded-full h-2">
+                <div className="mt-2 h-2 w-full bg-stone-800 rounded-full overflow-hidden">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: completionRate + '%' }}
+                    className="h-full bg-blue-600 rounded-full"
+                    style={{ width: `${completionRate}%` }}
                   />
                 </div>
               </div>
+              <div className="text-stone-500 text-sm">{isExpanded ? 'Hide' : 'View'}</div>
+            </button>
 
-              <div className="flex gap-1">
-                {last7Days.map((day) => (
-                  <div key={day.dateKey} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="text-xs text-stone-500">{getShortDayName(day.dateKey).slice(0, 1)}</div>
+            {isExpanded && (
+              <div className="px-4 pb-4">
+                <div
+                  className="grid grid-cols-7 gap-2 text-center text-xs text-stone-500 mb-2"
+                  data-testid="weekday-labels"
+                >
+                  {last7Days.map((day) => (
+                    <div key={`label-${day.dateKey}`} className="uppercase tracking-wide">
+                      {getShortDayName(day.dateKey).slice(0, 1)}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-2" data-testid="habit-detail-grid">
+                  {last7Days.map((day) => (
                     <div
-                      className={'w-full h-8 rounded ' + (
-                        day.isComplete
-                          ? 'bg-blue-600'
+                      key={day.dateKey}
+                      data-testid="day-cell"
+                      className={
+                        'h-10 rounded-md border ' +
+                        (day.isComplete
+                          ? 'bg-blue-600 border-blue-500'
                           : day.isToday
-                          ? 'border-2 border-blue-600 bg-transparent'
-                          : 'bg-stone-700'
-                      )}
+                          ? 'border-blue-500 bg-transparent'
+                          : 'bg-stone-800 border-stone-700')
+                      }
+                      aria-label={`${habit.name} ${day.dateKey}`}
                     />
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
-        {habits.length === 0 && (
-          <div className="text-center py-12 text-stone-500">
-            No habits to show. Add some from the Today tab!
+            )}
           </div>
-        )}
-      </div>
-
-      {showExport && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-stone-800 rounded-lg p-6 max-w-2xl w-full border border-stone-700">
-            <h2 className="text-xl font-bold mb-4">Export Data</h2>
-            <textarea
-              value={exportJson}
-              readOnly
-              className="w-full h-64 p-3 bg-stone-900 border border-stone-700 rounded font-mono text-sm text-stone-300"
-              onClick={(e) => e.currentTarget.select()}
-            />
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(exportJson);
-                  alert('Copied to clipboard!');
-                }}
-                className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Copy to Clipboard
-              </button>
-              <button
-                onClick={() => setShowExport(false)}
-                className="flex-1 py-2 bg-stone-700 rounded hover:bg-stone-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+        );
+      })}
+      {habits.length === 0 && (
+        <div className="text-center py-12 text-stone-500">
+          No habits to show. Add some from the Today tab!
         </div>
       )}
     </div>

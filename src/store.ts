@@ -1,19 +1,14 @@
+// ABOUTME: Holds the Zustand-powered application state for habits and UI.
+// ABOUTME: Exposes actions for navigation, data updates, and loading flags.
 import { create } from 'zustand';
 import type { Habit, HabitLogs } from './db/schema';
 
 interface AppState {
-  // Current view
-  view: 'today' | 'trends';
-
-  // Data
+  view: 'today' | 'trends' | 'settings';
   habits: Habit[];
   logs: HabitLogs;
-  
-  // UI state
   isLoading: boolean;
-
-  // Actions
-  setView: (view: 'today' | 'trends') => void;
+  setView: (view: 'today' | 'trends' | 'settings') => void;
   setHabits: (habits: Habit[]) => void;
   setLogs: (logs: HabitLogs) => void;
   setLoading: (loading: boolean) => void;

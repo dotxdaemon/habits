@@ -21,4 +21,17 @@ describe('habits queries', () => {
     expect(habits).toHaveLength(1);
     expect(habits[0]).toMatchObject({ name: 'Read a book', archived: false });
   });
+
+  it('drops archived numeric records and normalizes archived flags to booleans', async () => {
+    const createdAt = '2024-01-01';
+    await db.habits.bulkAdd([
+      { id: 'archived-1', name: 'Archived numeric', type: 'checkbox', createdAt, archived: 1 },
+      { id: 'active-0', name: 'Active numeric', type: 'checkbox', createdAt, archived: 0 },
+    ]);
+
+    const habits = await getHabits();
+
+    expect(habits).toHaveLength(1);
+    expect(habits[0]).toMatchObject({ id: 'active-0', archived: false });
+  });
 });

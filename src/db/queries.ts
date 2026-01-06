@@ -28,10 +28,8 @@ export async function createHabit(data: {
 export async function getHabits(): Promise<Habit[]> {
   const habits = await db.habits.toArray();
   return habits
-    .filter((habit) => habit.archived !== 1 && habit.archived !== true)
-    .map((habit) =>
-      habit.archived === undefined ? { ...habit, archived: false } : habit
-    );
+    .filter((habit) => habit.archived !== true && habit.archived !== 1)
+    .map((habit) => ({ ...habit, archived: false }));
 }
 
 export async function getHabit(id: string): Promise<Habit | undefined> {

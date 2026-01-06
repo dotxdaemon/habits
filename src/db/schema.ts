@@ -1,4 +1,5 @@
-// Database type definitions for the habit tracker app
+// ABOUTME: Defines the persistent data shapes used throughout the habit tracker.
+// ABOUTME: Documents habit records, log entries, and user settings schemas.
 
 export interface Habit {
   id: string;
@@ -7,7 +8,7 @@ export interface Habit {
   target?: number; // for amount type
   unit?: string; // for amount type (e.g., "glasses", "minutes", "pages")
   createdAt: string; // YYYY-MM-DD
-  archived?: boolean;
+  archived?: boolean | 0 | 1;
   color?: string; // future feature
 }
 

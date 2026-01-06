@@ -1,3 +1,5 @@
+// ABOUTME: Orchestrates application layout and navigation between views.
+// ABOUTME: Loads data, manages active tab, and renders page components.
 import { useEffect } from 'react';
 import { db } from './db/database';
 import { useAppStore } from './store';
@@ -5,6 +7,7 @@ import { getHabits, getLogs, getToday } from './db/queries';
 import { formatDate } from './domain/streaks';
 import { TodayView } from './pages/TodayView';
 import { TrendsView } from './pages/TrendsView';
+import { SettingsView } from './pages/SettingsView';
 
 function App() {
   const { view, isLoading, setHabits, setLogs, setLoading, setView } = useAppStore();
@@ -76,16 +79,24 @@ function App() {
             >
               Trends
             </button>
+            <button
+              onClick={() => setView('settings')}
+              className={'px-4 py-2 rounded-lg font-medium transition ' + (
+                view === 'settings'
+                  ? 'bg-stone-700 text-stone-50'
+                  : 'text-stone-400 hover:text-stone-300'
+              )}
+            >
+              Settings
+            </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto p-6">
-        {view === 'today' ? (
-          <TodayView onRefresh={refreshData} />
-        ) : (
-          <TrendsView onRefresh={refreshData} />
-        )}
+        {view === 'today' && <TodayView onRefresh={refreshData} />}
+        {view === 'trends' && <TrendsView onRefresh={refreshData} />}
+        {view === 'settings' && <SettingsView onRefresh={refreshData} />}
       </div>
     </div>
   );

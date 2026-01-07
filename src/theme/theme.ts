@@ -1,12 +1,13 @@
 // ABOUTME: Manages theme and scanline preferences with document updates.
 // ABOUTME: Stores user appearance selections in local storage for reuse.
-export type ThemeName = 'default' | 'retro-anime';
+export type ThemeName = 'default' | 'retro-anime' | 'retro-anime-dark';
 export type ScanlinesMode = 'on' | 'off';
 
 const THEME_KEY = 'theme';
 const SCANLINES_KEY = 'scanlines';
 
-const isThemeName = (value: string): value is ThemeName => value === 'retro-anime' || value === 'default';
+const isThemeName = (value: string): value is ThemeName =>
+  value === 'retro-anime' || value === 'retro-anime-dark' || value === 'default';
 const isScanlinesMode = (value: string): value is ScanlinesMode => value === 'on' || value === 'off';
 
 export const getStoredTheme = (): ThemeName => {

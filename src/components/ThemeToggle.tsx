@@ -55,6 +55,12 @@ export function ThemeToggle() {
         onChange={(next) => setTheme(next ? 'retro-anime' : 'default')}
       />
       <Toggle
+        label="Retro Anime Dark"
+        description="Night mode cel shading with neon accents."
+        checked={theme === 'retro-anime-dark'}
+        onChange={(next) => setTheme(next ? 'retro-anime-dark' : 'default')}
+      />
+      <Toggle
         label="Scanlines"
         description="Subtle background scanlines (reduced-motion friendly)."
         checked={scanlines === 'on'}

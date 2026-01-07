@@ -1,12 +1,13 @@
 // ABOUTME: Renders the Today view with daily habit controls and manage mode.
 // ABOUTME: Supports quick completion, streak visibility, and inline habit creation.
-import React, { type FormEvent, useState } from 'react';
+import React, { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../store';
 import { createHabit, deleteHabit, toggleCheckbox, updateAmount, getToday } from '../db/queries';
 import { calculateStreak } from '../domain/streaks';
 import type { Habit, LogEntry } from '../db/schema';
 import { Card } from '../components/Card';
 import { IconButton } from '../components/IconButton';
+import { Mascot } from '../components/Mascot';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -55,13 +56,13 @@ export function TodayView({ onRefresh }: Props) {
       <Card className="p-3">
         <div className="flex items-center gap-3">
           <form onSubmit={handleQuickAdd} className="flex-1">
-            <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 ring-1 ring-inset ring-white/10 focus-within:ring-white/20">
+            <div className="input-shell">
               <input
                 type="text"
                 value={newHabitName}
                 onChange={(e) => setNewHabitName(e.target.value)}
                 placeholder="Add a habit"
-                className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 outline-none"
+                className="input input--bare w-full"
                 disabled={isAdding}
                 aria-label="Add habit"
               />
@@ -73,9 +74,7 @@ export function TodayView({ onRefresh }: Props) {
           <button
             type="button"
             onClick={() => setIsManaging((prev) => !prev)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold ring-1 ring-inset transition ${
-              isManaging ? 'bg-blue-600 ring-blue-500 text-white' : 'bg-white/5 ring-white/10 text-slate-100 hover:bg-white/10'
-            }`}
+            className={`button flex items-center gap-2 ${isManaging ? 'button--primary' : 'button--ghost'}`}
             aria-pressed={isManaging}
           >
             <span aria-hidden>⚙️</span>
@@ -98,8 +97,11 @@ export function TodayView({ onRefresh }: Props) {
           />
         ))}
         {habits.length === 0 && (
-          <Card className="p-6 text-center text-slate-400">
-            No habits yet. Type a habit name and press Enter to add one.
+          <Card className="p-6 text-center space-y-3">
+            <div className="flex justify-center">
+              <Mascot className="h-20 w-20" />
+            </div>
+            <p className="text-sm text-muted">No habits yet. Type a habit name and press Enter to add one.</p>
           </Card>
         )}
       </div>
@@ -121,6 +123,19 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const isCheckbox = habit.type === 'checkbox';
   const isDone = isCheckbox ? log?.done : (log?.value || 0) >= (habit.target || 1);
   const progress = habit.type === 'amount' && habit.target ? Math.min(((log?.value || 0) / habit.target) * 100, 100) : 0;
+  const [showSparkle, setShowSparkle] = useState(false);
+  const previousStreak = useRef(streak);
+
+  useEffect(() => {
+    if (streak > previousStreak.current) {
+      setShowSparkle(true);
+      const timeout = window.setTimeout(() => setShowSparkle(false), 320);
+      previousStreak.current = streak;
+      return () => window.clearTimeout(timeout);
+    }
+    previousStreak.current = streak;
+  }, [streak]);
+
   const handleCardClick = () => {
     if (isCheckbox) {
       void onToggleCheckbox(habit.id);
@@ -136,7 +151,8 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
 
   return (
     <Card
-      className={`p-4 flex items-center gap-3 transition ${isCheckbox ? 'cursor-pointer hover:bg-white/5' : ''}`}
+      className={`habit-card p-4 flex items-center gap-3 transition ${isCheckbox ? 'cursor-pointer' : ''}`}
+      data-done={isDone ? 'true' : 'false'}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role={isCheckbox ? 'button' : undefined}
@@ -167,7 +183,7 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
             >
               −
             </IconButton>
-            <div className="px-3 py-2 rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 text-sm font-semibold text-slate-100 min-w-[72px] text-center">
+            <div className="amount-pill min-w-[72px] text-center">
               {log?.value || 0}/{habit.target}
             </div>
             <IconButton
@@ -187,29 +203,30 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <div className="text-base font-semibold text-slate-50 truncate">{habit.name}</div>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${
-            streak > 0 ? 'bg-amber-500/15 text-amber-200 ring-amber-400/40' : 'bg-white/5 text-slate-300 ring-white/10'
-          }`}>
+          <div className="text-base font-semibold text-[color:var(--color-text)] truncate">{habit.name}</div>
+          <span
+            className={`streak-badge ${streak > 0 ? 'streak-badge--active' : 'streak-badge--idle'} ${showSparkle ? 'streak-badge--sparkle' : ''}`}
+          >
+            <span className="streak-badge__icon" aria-hidden>★</span>
             {streak}d
           </span>
         </div>
-        <p className="text-xs text-slate-400 mt-1">
-          {habit.type === 'checkbox' ? 'Checkbox' : `Amount • Target ${habit.target}${habit.unit ? ` ${habit.unit}` : ''}`}
-        </p>
         {habit.type === 'amount' && (
           <div className="mt-3">
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden ring-1 ring-inset ring-white/10">
+              <div className="progress-track flex-1 h-2 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 transition-all"
+                  className="progress-fill h-full transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="text-xs text-slate-300 whitespace-nowrap">
+              <div className="text-xs text-muted whitespace-nowrap">
                 {log?.value || 0} / {habit.target} {habit.unit || ''}
               </div>
             </div>
+            <p className="text-xs text-muted mt-1">
+              Amount • Target {habit.target}{habit.unit ? ` ${habit.unit}` : ''}
+            </p>
           </div>
         )}
       </div>

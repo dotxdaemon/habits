@@ -1,11 +1,12 @@
 // ABOUTME: Validates Today view layout and controls for habit interactions.
 // ABOUTME: Ensures manage mode and quick-add behaviors stay accessible inline.
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import { TodayView } from './TodayView';
 import { useAppStore } from '../store';
 import type { Habit } from '../db/schema';
 import { createHabit } from '../db/queries';
+import { getToday } from '../db/queries';
 
 vi.mock('../db/queries', async () => {
   const actual = await vi.importActual<typeof import('../db/queries')>('../db/queries');
@@ -81,5 +82,40 @@ describe('TodayView', () => {
       type: 'checkbox',
     });
     expect(await screen.findByText(newHabit.name)).toBeInTheDocument();
+  });
+
+  it('does not show the checkbox type label under a habit name', () => {
+    render(<TodayView onRefresh={async () => {}} />);
+
+    expect(screen.queryByText(/checkbox/i)).not.toBeInTheDocument();
+  });
+
+  it('adds a sparkle class when the streak increases', () => {
+    const today = getToday();
+    vi.useFakeTimers();
+
+    render(<TodayView onRefresh={async () => {}} />);
+
+    const initialBadge = screen.getByText('0d').closest('span');
+    expect(initialBadge).not.toHaveClass('streak-badge--sparkle');
+
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        logs: {
+          [today]: {
+            [habit.id]: { done: true },
+          },
+        },
+      }));
+    });
+
+    const updatedBadge = screen.getByText('1d').closest('span');
+    expect(updatedBadge).toHaveClass('streak-badge--sparkle');
+
+    act(() => {
+      vi.runAllTimers();
+    });
+    vi.useRealTimers();
   });
 });

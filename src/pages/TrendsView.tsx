@@ -5,6 +5,7 @@ import { useAppStore } from '../store';
 import { calculateCompletionRate, getLast7Days, getShortDayName } from '../domain/streaks';
 import { getDaysAgo } from '../db/queries';
 import { Card } from '../components/Card';
+import { Mascot } from '../components/Mascot';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -37,16 +38,16 @@ export function TrendsView({ onRefresh }: Props) {
       <Card className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">This month</p>
-            <h2 className="text-lg font-semibold text-slate-50">Consistency</h2>
+            <p className="text-label">This month</p>
+            <h2 className="text-section">Consistency</h2>
           </div>
-          <div className="text-sm text-slate-400">Last 14 days</div>
+          <div className="text-sm text-muted">Last 14 days</div>
         </div>
         <div className="grid grid-cols-14 gap-1">
           {last14DayCompletion.map((day) => (
-            <div key={day.dateKey} className="w-full h-10 rounded-lg bg-white/5 ring-1 ring-white/10 overflow-hidden">
+            <div key={day.dateKey} className="timeline-bar w-full h-10 rounded-lg overflow-hidden">
               <div
-                className="bg-gradient-to-b from-sky-400 to-indigo-500 w-full"
+                className="timeline-bar__fill w-full"
                 style={{ height: `${day.percent}%` }}
               />
             </div>
@@ -62,29 +63,29 @@ export function TrendsView({ onRefresh }: Props) {
           <Card key={habit.id} className="overflow-hidden">
             <button
               onClick={() => setExpandedHabitId(isExpanded ? null : habit.id)}
-              className="w-full text-left px-4 py-4 flex items-center gap-3 hover:bg-white/5 transition"
+              className="w-full text-left px-4 py-4 flex items-center gap-3 habit-card"
               aria-expanded={isExpanded}
             >
               <div className="flex-1 min-w-0">
-                <div className="text-sm text-slate-400">30-day</div>
+                <div className="text-sm text-muted">30-day</div>
                 <div className="flex items-center gap-3">
-                  <div className="text-lg font-semibold text-slate-50 truncate">{habit.name}</div>
-                  <div className="text-sm text-slate-200">{completionRate}%</div>
+                  <div className="text-lg font-semibold text-[color:var(--color-text)] truncate">{habit.name}</div>
+                  <div className="text-sm text-muted">{completionRate}%</div>
                 </div>
-                <div className="mt-2 h-2 w-full bg-white/5 rounded-full overflow-hidden ring-1 ring-inset ring-white/10">
+                <div className="mt-2 h-2 w-full progress-track rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full"
+                    className="h-full progress-fill rounded-full"
                     style={{ width: `${completionRate}%` }}
                   />
                 </div>
               </div>
-              <div className="text-slate-500 text-sm">{isExpanded ? 'Hide' : 'View'}</div>
+              <div className="text-muted text-sm">{isExpanded ? 'Hide' : 'View'}</div>
             </button>
 
             {isExpanded && (
               <div className="px-4 pb-4 space-y-3">
                 <div
-                  className="grid grid-cols-7 gap-2 text-center text-xs text-slate-500"
+                  className="grid grid-cols-7 gap-2 text-center text-xs text-muted"
                   data-testid="weekday-labels"
                 >
                   {last7Days.map((day) => (
@@ -99,12 +100,12 @@ export function TrendsView({ onRefresh }: Props) {
                       key={day.dateKey}
                       data-testid="day-cell"
                       className={
-                        'h-10 rounded-md ring-1 ring-inset ' +
+                        'h-10 rounded-md border-2 ' +
                         (day.isComplete
-                          ? 'bg-gradient-to-b from-sky-400 to-indigo-500 ring-blue-400/70'
+                          ? 'bg-gradient-to-b from-[var(--color-progress-start)] to-[var(--color-progress-end)] border-[var(--color-ink)]'
                           : day.isToday
-                          ? 'ring-blue-400/70 bg-transparent'
-                          : 'bg-white/5 ring-white/10')
+                          ? 'border-[var(--color-accent)] bg-transparent'
+                          : 'bg-[color:var(--color-surface-muted)] border-[var(--color-border)]')
                       }
                       aria-label={`${habit.name} ${day.dateKey}`}
                     />
@@ -116,8 +117,11 @@ export function TrendsView({ onRefresh }: Props) {
         );
       })}
       {habits.length === 0 && (
-        <Card className="p-6 text-center text-slate-400">
-          No habits to show. Add some from the Today tab!
+        <Card className="p-6 text-center space-y-3">
+          <div className="flex justify-center">
+            <Mascot className="h-20 w-20" />
+          </div>
+          <p className="text-sm text-muted">No habits to show. Add some from the Today tab!</p>
         </Card>
       )}
     </div>

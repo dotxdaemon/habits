@@ -10,6 +10,7 @@ import { TrendsView } from './pages/TrendsView';
 import { SettingsView } from './pages/SettingsView';
 import { ProgressRing } from './components/ProgressRing';
 import { Card } from './components/Card';
+import { applyScanlines, applyTheme, getStoredScanlines, getStoredTheme } from './theme/theme';
 
 function App() {
   const { view, habits, logs, isLoading, setHabits, setLogs, setLoading, setView } = useAppStore();
@@ -32,6 +33,11 @@ function App() {
 
     init();
   }, [setHabits, setLogs, setLoading]);
+
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+    applyScanlines(getStoredScanlines());
+  }, []);
 
   const refreshData = async () => {
     const habits = await getHabits();
@@ -63,14 +69,14 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-screen">
       <div className="max-w-md mx-auto px-4 pt-8 pb-4">
-        <Card className="p-4">
+        <Card className="p-4 header-card">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <p className="text-xs uppercase tracking-wide text-slate-400">習慣トラッカー</p>
-              <h1 className="text-2xl font-bold">Habits</h1>
-              <p className="text-sm text-slate-400 mt-1">{formatDate(today)}</p>
+              <p className="text-label">習慣トラッカー</p>
+              <h1 className="text-title">Habits</h1>
+              <p className="text-sm text-muted mt-1">{formatDate(today)}</p>
             </div>
             <ProgressRing value={doneCount} max={Math.max(totalCount, 1)} size={92} strokeWidth={8} />
           </div>
@@ -85,7 +91,7 @@ function App() {
 
       <div className="fixed bottom-0 inset-x-0">
         <div className="max-w-md mx-auto px-4 pb-[env(safe-area-inset-bottom)]">
-          <Card className="mb-4 shadow-xl ring-white/20 bg-slate-950/80 backdrop-blur">
+          <Card className="mb-4 nav-bar">
             <div className="grid grid-cols-3">
               {[
                 { key: 'today', label: 'Today' },
@@ -95,17 +101,11 @@ function App() {
                 <button
                   key={item.key}
                   onClick={() => setView(item.key as typeof view)}
-                  className={`flex flex-col items-center gap-1 py-3 text-sm font-medium transition ${
-                    view === item.key ? 'text-slate-50' : 'text-slate-400 hover:text-slate-200'
-                  }`}
+                  className={`nav-button ${view === item.key ? 'nav-button--active' : ''}`}
                   aria-pressed={view === item.key}
                 >
                   <span
-                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-inset ${
-                      view === item.key
-                        ? 'bg-blue-600 ring-blue-500 text-white'
-                        : 'bg-white/5 ring-white/10'
-                    }`}
+                    className={`nav-pill ${view === item.key ? 'nav-pill--active' : ''}`}
                     aria-hidden
                   >
                     {item.label.slice(0, 1)}

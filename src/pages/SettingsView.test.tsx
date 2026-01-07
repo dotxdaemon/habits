@@ -12,22 +12,32 @@ describe('SettingsView', () => {
     document.documentElement.removeAttribute('data-scanlines');
   });
 
-  it('toggles the retro anime theme and persists it', () => {
+  it('toggles the retro anime themes and persists them', () => {
     render(<SettingsView onRefresh={async () => {}} />);
 
-    const toggle = screen.getByRole('switch', { name: /retro anime/i });
-    expect(toggle).not.toBeChecked();
+    const retroAnimeToggle = screen.getByRole('switch', { name: /^retro anime$/i });
+    const retroAnimeDarkToggle = screen.getByRole('switch', { name: /retro anime dark/i });
+    expect(retroAnimeToggle).not.toBeChecked();
+    expect(retroAnimeDarkToggle).not.toBeChecked();
     expect(document.documentElement.dataset.theme).toBe('default');
 
-    fireEvent.click(toggle);
+    fireEvent.click(retroAnimeToggle);
 
-    expect(toggle).toBeChecked();
+    expect(retroAnimeToggle).toBeChecked();
+    expect(retroAnimeDarkToggle).not.toBeChecked();
     expect(document.documentElement.dataset.theme).toBe('retro-anime');
     expect(storage.getItem('theme')).toBe('retro-anime');
 
-    fireEvent.click(toggle);
+    fireEvent.click(retroAnimeDarkToggle);
 
-    expect(toggle).not.toBeChecked();
+    expect(retroAnimeToggle).not.toBeChecked();
+    expect(retroAnimeDarkToggle).toBeChecked();
+    expect(document.documentElement.dataset.theme).toBe('retro-anime-dark');
+    expect(storage.getItem('theme')).toBe('retro-anime-dark');
+
+    fireEvent.click(retroAnimeDarkToggle);
+
+    expect(retroAnimeDarkToggle).not.toBeChecked();
     expect(document.documentElement.dataset.theme).toBe('default');
     expect(storage.getItem('theme')).toBe('default');
   });

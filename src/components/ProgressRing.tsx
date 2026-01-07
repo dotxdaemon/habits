@@ -22,7 +22,7 @@ export function ProgressRing({ value, max, size = 96, strokeWidth = 10 }: Progre
           cx={center}
           cy={center}
           r={radius}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="var(--color-progress-track)"
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
@@ -41,12 +41,12 @@ export function ProgressRing({ value, max, size = 96, strokeWidth = 10 }: Progre
         />
         <defs>
           <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#38bdf8" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="var(--color-progress-start)" />
+            <stop offset="100%" stopColor="var(--color-progress-end)" />
           </linearGradient>
         </defs>
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-slate-100">
+      <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[color:var(--color-text)]">
         {clampedValue}/{clampedMax}
       </div>
     </div>

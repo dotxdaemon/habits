@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { exportData, importData } from '../db/queries';
 import { Card } from '../components/Card';
 import { IconButton } from '../components/IconButton';
+import { Mascot } from '../components/Mascot';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -37,31 +39,42 @@ export function SettingsView({ onRefresh }: Props) {
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <h2 className="text-lg font-semibold mb-3 text-slate-50">Data</h2>
+        <h2 className="text-section mb-3">Data</h2>
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="flex-1 py-3 rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 text-slate-100 hover:bg-white/10 transition font-semibold"
+            className="button button--ghost flex-1"
           >
             Export Data
           </button>
           <button
             onClick={handleImport}
-            className="flex-1 py-3 rounded-xl bg-blue-600 ring-1 ring-blue-500 text-white hover:bg-blue-500 transition font-semibold"
+            className="button button--primary flex-1"
           >
             Import Data
           </button>
         </div>
       </Card>
 
+      <Card className="p-4 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-section">Appearance</h2>
+            <p className="text-xs text-muted">Tune the look without changing behavior.</p>
+          </div>
+          <Mascot className="h-12 w-12" />
+        </div>
+        <ThemeToggle />
+      </Card>
+
       {showExport && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <Card className="p-6 max-w-2xl w-full">
-            <h2 className="text-xl font-bold mb-4 text-slate-50">Export Data</h2>
+            <h2 className="text-title mb-4">Export Data</h2>
             <textarea
               value={exportJson}
               readOnly
-              className="w-full h-64 p-3 bg-white/5 ring-1 ring-inset ring-white/10 rounded-xl font-mono text-sm text-slate-100"
+              className="input w-full h-64 font-mono text-sm"
               onClick={(e) => e.currentTarget.select()}
             />
             <div className="flex gap-2 mt-4">

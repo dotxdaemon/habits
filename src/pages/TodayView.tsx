@@ -1,10 +1,12 @@
 // ABOUTME: Renders the Today view with daily habit controls and manage mode.
 // ABOUTME: Supports quick completion, streak visibility, and inline habit creation.
-import { type FormEvent, useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import { useAppStore } from '../store';
 import { createHabit, deleteHabit, toggleCheckbox, updateAmount, getToday } from '../db/queries';
 import { calculateStreak } from '../domain/streaks';
 import type { Habit, LogEntry } from '../db/schema';
+import { Card } from '../components/Card';
+import { IconButton } from '../components/IconButton';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -50,30 +52,39 @@ export function TodayView({ onRefresh }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        <form onSubmit={handleQuickAdd} className="flex-1">
-          <input
-            type="text"
-            value={newHabitName}
-            onChange={(e) => setNewHabitName(e.target.value)}
-            placeholder="Add a habit"
-            className="w-full px-4 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-50"
-            disabled={isAdding}
-            aria-label="Add habit"
-          />
-        </form>
-        <button
-          onClick={() => setIsManaging((prev) => !prev)}
-          className={'px-3 py-2 rounded-lg text-sm font-medium border border-stone-700 transition ' + (
-            isManaging ? 'bg-stone-700 text-stone-50' : 'text-stone-300 hover:bg-stone-800'
-          )}
-          aria-pressed={isManaging}
-        >
-          Manage
-        </button>
-      </div>
+      <Card className="p-3">
+        <div className="flex items-center gap-3">
+          <form onSubmit={handleQuickAdd} className="flex-1">
+            <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 ring-1 ring-inset ring-white/10 focus-within:ring-white/20">
+              <input
+                type="text"
+                value={newHabitName}
+                onChange={(e) => setNewHabitName(e.target.value)}
+                placeholder="Add a habit"
+                className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 outline-none"
+                disabled={isAdding}
+                aria-label="Add habit"
+              />
+              <IconButton type="submit" size="sm" variant="primary" aria-label="Add">
+                +
+              </IconButton>
+            </div>
+          </form>
+          <button
+            type="button"
+            onClick={() => setIsManaging((prev) => !prev)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold ring-1 ring-inset transition ${
+              isManaging ? 'bg-blue-600 ring-blue-500 text-white' : 'bg-white/5 ring-white/10 text-slate-100 hover:bg-white/10'
+            }`}
+            aria-pressed={isManaging}
+          >
+            <span aria-hidden>⚙️</span>
+            Manage
+          </button>
+        </div>
+      </Card>
 
-      <div className="rounded-lg border border-stone-800 divide-y divide-stone-800 overflow-hidden">
+      <div className="space-y-3">
         {habits.map((habit) => (
           <HabitRow
             key={habit.id}
@@ -87,9 +98,9 @@ export function TodayView({ onRefresh }: Props) {
           />
         ))}
         {habits.length === 0 && (
-          <div className="text-center py-10 text-stone-500">
+          <Card className="p-6 text-center text-slate-400">
             No habits yet. Type a habit name and press Enter to add one.
-          </div>
+          </Card>
         )}
       </div>
     </div>
@@ -110,70 +121,112 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const isCheckbox = habit.type === 'checkbox';
   const isDone = isCheckbox ? log?.done : (log?.value || 0) >= (habit.target || 1);
   const progress = habit.type === 'amount' && habit.target ? Math.min(((log?.value || 0) / habit.target) * 100, 100) : 0;
+  const handleCardClick = () => {
+    if (isCheckbox) {
+      void onToggleCheckbox(habit.id);
+    }
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!isCheckbox) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      void onToggleCheckbox(habit.id);
+    }
+  };
 
   return (
-    <div className="flex items-center gap-3 px-3 py-3 bg-stone-900/60">
-      <div className="w-28 flex items-center">
+    <Card
+      className={`p-4 flex items-center gap-3 transition ${isCheckbox ? 'cursor-pointer hover:bg-white/5' : ''}`}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role={isCheckbox ? 'button' : undefined}
+      aria-pressed={isCheckbox ? isDone : undefined}
+      tabIndex={isCheckbox ? 0 : undefined}
+    >
+      <div className="shrink-0">
         {isCheckbox ? (
-          <button
-            onClick={() => onToggleCheckbox(habit.id)}
-            className={'w-11 h-11 rounded-full border flex items-center justify-center text-lg transition ' + (isDone ? 'bg-blue-600 border-blue-500 text-white' : 'border-stone-700 text-stone-400 hover:border-stone-500')}
+          <IconButton
+            variant={isDone ? 'primary' : 'ghost'}
             aria-label={`Toggle ${habit.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              void onToggleCheckbox(habit.id);
+            }}
           >
             {isDone ? '✓' : ''}
-          </button>
+          </IconButton>
         ) : (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => onUpdateAmount(habit.id, -1)}
-              className="w-9 h-9 rounded-lg border border-stone-700 bg-stone-900 text-lg hover:border-stone-500"
+          <div className="flex items-center gap-2">
+            <IconButton
+              size="sm"
               aria-label={`Decrease ${habit.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                void onUpdateAmount(habit.id, -1);
+              }}
             >
               −
-            </button>
-            <div className="px-2 py-1 rounded-lg bg-stone-800 text-sm text-stone-100">
+            </IconButton>
+            <div className="px-3 py-2 rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 text-sm font-semibold text-slate-100 min-w-[72px] text-center">
               {log?.value || 0}/{habit.target}
             </div>
-            <button
-              onClick={() => onUpdateAmount(habit.id, 1)}
-              className="w-9 h-9 rounded-lg border border-stone-700 bg-stone-900 text-lg hover:border-stone-500"
+            <IconButton
+              size="sm"
+              variant="primary"
               aria-label={`Increase ${habit.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                void onUpdateAmount(habit.id, 1);
+              }}
             >
               +
-            </button>
+            </IconButton>
           </div>
         )}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-base font-semibold text-stone-50 truncate">{habit.name}</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-base font-semibold text-slate-50 truncate">{habit.name}</div>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${
+            streak > 0 ? 'bg-amber-500/15 text-amber-200 ring-amber-400/40' : 'bg-white/5 text-slate-300 ring-white/10'
+          }`}>
+            {streak}d
+          </span>
+        </div>
+        <p className="text-xs text-slate-400 mt-1">
+          {habit.type === 'checkbox' ? 'Checkbox' : `Amount • Target ${habit.target}${habit.unit ? ` ${habit.unit}` : ''}`}
+        </p>
         {habit.type === 'amount' && (
-          <div className="mt-1 flex items-center gap-2">
-            <div className="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-blue-600 transition-all"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="mt-3">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden ring-1 ring-inset ring-white/10">
+                <div
+                  className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="text-xs text-slate-300 whitespace-nowrap">
+                {log?.value || 0} / {habit.target} {habit.unit || ''}
+              </div>
             </div>
-            <div className="text-xs text-stone-400 whitespace-nowrap">{Math.round(progress)}%</div>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className={'px-2 py-1 rounded-full text-xs font-semibold border ' + (streak > 0 ? 'border-amber-400 text-amber-300' : 'border-stone-700 text-stone-400')}>
-          {streak}d
-        </div>
-        {isManaging && (
-          <button
-            onClick={() => onDelete(habit.id)}
-            className="text-stone-400 hover:text-red-400 px-2"
-            aria-label="Delete habit"
-          >
-            ×
-          </button>
-        )}
-      </div>
-    </div>
+      {isManaging && (
+        <IconButton
+          variant="danger"
+          size="sm"
+          aria-label="Delete habit"
+          onClick={(e) => {
+            e.stopPropagation();
+            void onDelete(habit.id);
+          }}
+        >
+          ×
+        </IconButton>
+      )}
+    </Card>
   );
 }

@@ -2,6 +2,8 @@
 // ABOUTME: Uses modal overlays for sharing habit and log data safely.
 import { useState } from 'react';
 import { exportData, importData } from '../db/queries';
+import { Card } from '../components/Card';
+import { IconButton } from '../components/IconButton';
 
 interface Props {
   onRefresh: () => Promise<void>;
@@ -34,52 +36,56 @@ export function SettingsView({ onRefresh }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-stone-800 border border-stone-700 rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-3 text-stone-50">Data</h2>
+      <Card className="p-4">
+        <h2 className="text-lg font-semibold mb-3 text-slate-50">Data</h2>
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="flex-1 py-3 bg-stone-900 border border-stone-700 rounded-lg hover:border-stone-500"
+            className="flex-1 py-3 rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 text-slate-100 hover:bg-white/10 transition font-semibold"
           >
             Export Data
           </button>
           <button
             onClick={handleImport}
-            className="flex-1 py-3 bg-stone-900 border border-stone-700 rounded-lg hover:border-stone-500"
+            className="flex-1 py-3 rounded-xl bg-blue-600 ring-1 ring-blue-500 text-white hover:bg-blue-500 transition font-semibold"
           >
             Import Data
           </button>
         </div>
-      </div>
+      </Card>
 
       {showExport && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-stone-800 rounded-lg p-6 max-w-2xl w-full border border-stone-700">
-            <h2 className="text-xl font-bold mb-4 text-stone-50">Export Data</h2>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <Card className="p-6 max-w-2xl w-full">
+            <h2 className="text-xl font-bold mb-4 text-slate-50">Export Data</h2>
             <textarea
               value={exportJson}
               readOnly
-              className="w-full h-64 p-3 bg-stone-900 border border-stone-700 rounded font-mono text-sm text-stone-300"
+              className="w-full h-64 p-3 bg-white/5 ring-1 ring-inset ring-white/10 rounded-xl font-mono text-sm text-slate-100"
               onClick={(e) => e.currentTarget.select()}
             />
             <div className="flex gap-2 mt-4">
-              <button
+              <IconButton
+                variant="primary"
+                className="flex-1 rounded-xl h-12"
+                aria-label="Copy export"
                 onClick={() => {
                   navigator.clipboard.writeText(exportJson);
                   alert('Copied to clipboard!');
                 }}
-                className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Copy to Clipboard
-              </button>
-              <button
+                Copy
+              </IconButton>
+              <IconButton
+                variant="ghost"
+                className="flex-1 rounded-xl h-12"
+                aria-label="Close export"
                 onClick={() => setShowExport(false)}
-                className="flex-1 py-2 bg-stone-700 rounded hover:bg-stone-600"
               >
                 Close
-              </button>
+              </IconButton>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

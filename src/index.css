@@ -471,12 +471,31 @@ body::after {
     transform: scale(1) rotate(10deg);
   }
 
+  .habit-check {
+    position: relative;
+  }
+
   .habit-card:focus-visible {
     outline: 3px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
     outline-offset: 2px;
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .habit-check--celebrate {
+      animation: habit-check-celebrate 520ms ease-out;
+    }
+
+    .habit-check--celebrate::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 2px solid var(--color-sunshine);
+      opacity: 0;
+      animation: habit-check-burst 520ms ease-out;
+      pointer-events: none;
+    }
+
     .habit-card[data-done='true'] {
       animation: habit-pop 120ms ease-out;
     }
@@ -545,6 +564,32 @@ body::after {
     }
   }
 
+  @keyframes habit-check-celebrate {
+    0% {
+      transform: scale(1);
+    }
+    45% {
+      transform: scale(1.15) rotate(-6deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes habit-check-burst {
+    0% {
+      transform: scale(0.6);
+      opacity: 0.7;
+    }
+    70% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: scale(1.4);
+      opacity: 0;
+    }
+  }
+
   @keyframes sparkle {
     0% {
       transform: scale(0.6) rotate(-8deg);
@@ -562,6 +607,14 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .habit-check--celebrate {
+    animation: none;
+  }
+
+  .habit-check--celebrate::after {
+    animation: none;
+  }
+
   .streak-badge--sparkle .streak-badge__icon {
     animation: none;
   }

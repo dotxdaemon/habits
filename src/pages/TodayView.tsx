@@ -1,6 +1,6 @@
 // ABOUTME: Renders the Today view with daily habit controls and manage mode.
 // ABOUTME: Supports quick completion, streak visibility, and inline habit creation.
-import React, { type FormEvent, useEffect, useRef, useState } from 'react';
+import React, { type FormEvent, useRef, useState } from 'react';
 import { useAppStore } from '../store';
 import { createHabit, deleteHabit, toggleCheckbox, updateAmount, getToday } from '../db/queries';
 import { calculateStreak } from '../domain/streaks';
@@ -123,21 +123,23 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const isCheckbox = habit.type === 'checkbox';
   const isDone = isCheckbox ? log?.done : (log?.value || 0) >= (habit.target || 1);
   const progress = habit.type === 'amount' && habit.target ? Math.min(((log?.value || 0) / habit.target) * 100, 100) : 0;
-  const [showSparkle, setShowSparkle] = useState(false);
-  const previousStreak = useRef(streak);
+  const [celebrateCheck, setCelebrateCheck] = useState(false);
+  const celebrateTimeout = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (streak > previousStreak.current) {
-      setShowSparkle(true);
-      const timeout = window.setTimeout(() => setShowSparkle(false), 320);
-      previousStreak.current = streak;
-      return () => window.clearTimeout(timeout);
+  const triggerCelebration = () => {
+    if (!isCheckbox || isDone) return;
+    setCelebrateCheck(true);
+    if (celebrateTimeout.current !== null) {
+      window.clearTimeout(celebrateTimeout.current);
     }
-    previousStreak.current = streak;
-  }, [streak]);
+    celebrateTimeout.current = window.setTimeout(() => {
+      setCelebrateCheck(false);
+    }, 520);
+  };
 
   const handleCardClick = () => {
     if (isCheckbox) {
+      triggerCelebration();
       void onToggleCheckbox(habit.id);
     }
   };
@@ -145,6 +147,7 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
     if (!isCheckbox) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      triggerCelebration();
       void onToggleCheckbox(habit.id);
     }
   };
@@ -164,8 +167,10 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
           <IconButton
             variant={isDone ? 'primary' : 'ghost'}
             aria-label={`Toggle ${habit.name}`}
+            className={`habit-check ${celebrateCheck ? 'habit-check--celebrate' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
+              triggerCelebration();
               void onToggleCheckbox(habit.id);
             }}
           >
@@ -205,7 +210,7 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
         <div className="flex items-center justify-between gap-2">
           <div className="text-base font-semibold text-[color:var(--color-text)] truncate">{habit.name}</div>
           <span
-            className={`streak-badge ${streak > 0 ? 'streak-badge--active' : 'streak-badge--idle'} ${showSparkle ? 'streak-badge--sparkle' : ''}`}
+            className={`streak-badge ${streak > 0 ? 'streak-badge--active' : 'streak-badge--idle'}`}
           >
             <span className="streak-badge__icon" aria-hidden>★</span>
             {streak}d

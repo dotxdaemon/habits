@@ -6,7 +6,6 @@ import { TodayView } from './TodayView';
 import { useAppStore } from '../store';
 import type { Habit } from '../db/schema';
 import { createHabit } from '../db/queries';
-import { getToday } from '../db/queries';
 
 vi.mock('../db/queries', async () => {
   const actual = await vi.importActual<typeof import('../db/queries')>('../db/queries');
@@ -37,7 +36,7 @@ describe('TodayView', () => {
       logs: {},
       view: 'today',
       isLoading: false,
-    } as any);
+    });
   });
 
   it('hides delete controls until manage mode is enabled', () => {
@@ -90,32 +89,23 @@ describe('TodayView', () => {
     expect(screen.queryByText(/checkbox/i)).not.toBeInTheDocument();
   });
 
-  it('adds a sparkle class when the streak increases', () => {
-    const today = getToday();
+  it('adds a celebration class when checking off a habit', () => {
     vi.useFakeTimers();
 
     render(<TodayView onRefresh={async () => {}} />);
 
-    const initialBadge = screen.getByText('0d').closest('span');
-    expect(initialBadge).not.toHaveClass('streak-badge--sparkle');
+    const toggleButton = screen.getByRole('button', { name: /toggle read/i });
+    expect(toggleButton).not.toHaveClass('habit-check--celebrate');
 
-    act(() => {
-      useAppStore.setState((state) => ({
-        ...state,
-        logs: {
-          [today]: {
-            [habit.id]: { done: true },
-          },
-        },
-      }));
-    });
+    fireEvent.click(toggleButton);
 
-    const updatedBadge = screen.getByText('1d').closest('span');
-    expect(updatedBadge).toHaveClass('streak-badge--sparkle');
+    expect(toggleButton).toHaveClass('habit-check--celebrate');
 
     act(() => {
       vi.runAllTimers();
     });
+
+    expect(toggleButton).not.toHaveClass('habit-check--celebrate');
     vi.useRealTimers();
   });
 });

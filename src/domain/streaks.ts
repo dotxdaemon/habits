@@ -1,3 +1,5 @@
+// ABOUTME: Computes streaks, completion rates, and summaries for habit history.
+// ABOUTME: Provides date formatting helpers for trend and timeline displays.
 /**
  * Streak calculation logic for habit tracking
  */
@@ -15,7 +17,7 @@ import { getDateKey, getDaysAgo } from '../db/queries';
  */
 export function calculateStreak(habit: Habit, logs: HabitLogs): number {
   let streak = 0;
-  let checkDate = new Date();
+  const checkDate = new Date();
 
   const isComplete = (log: LogEntry | undefined): boolean => {
     if (!log) return false;

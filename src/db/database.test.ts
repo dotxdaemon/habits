@@ -1,7 +1,7 @@
 // ABOUTME: Tests the database helpers that set up IndexedDB tables.
 // ABOUTME: Ensures initialization logic stays stable under concurrent calls.
 import { describe, expect, it, vi } from 'vitest';
-import { ensureDefaultSettings } from './database';
+import { ensureDefaultSettings, type SettingsTable } from './database';
 
 describe('ensureDefaultSettings', () => {
   it('handles concurrent initialization without throwing', async () => {
@@ -21,8 +21,8 @@ describe('ensureDefaultSettings', () => {
 
     await expect(
       Promise.all([
-        ensureDefaultSettings(settingsTable as any),
-        ensureDefaultSettings(settingsTable as any),
+        ensureDefaultSettings(settingsTable as SettingsTable),
+        ensureDefaultSettings(settingsTable as SettingsTable),
       ])
     ).resolves.toBeDefined();
 

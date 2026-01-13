@@ -2,7 +2,7 @@
 // ABOUTME: Expands a selected habit to show a shared weekday grid for recent history.
 import { useState } from 'react';
 import { useAppStore } from '../store';
-import { calculateCompletionRate, getLast7Days, getShortDayName } from '../domain/streaks';
+import { calculateCompletionRate, formatDate, getLast7Days, getShortDayName } from '../domain/streaks';
 import { getDaysAgo } from '../db/queries';
 import { Card } from '../components/Card';
 import { Mascot } from '../components/Mascot';
@@ -10,6 +10,12 @@ import { Mascot } from '../components/Mascot';
 interface Props {
   onRefresh: () => Promise<void>;
 }
+
+const formatShortDate = (dateKey: string) => {
+  const [year, month, day] = dateKey.split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
 
 export function TrendsView({ onRefresh }: Props) {
   const { habits, logs } = useAppStore();
@@ -45,11 +51,20 @@ export function TrendsView({ onRefresh }: Props) {
         </div>
         <div className="grid grid-cols-14 gap-1">
           {last14DayCompletion.map((day) => (
-            <div key={day.dateKey} className="timeline-bar w-full h-10 rounded-lg overflow-hidden">
+            <div key={day.dateKey} className="flex flex-col items-center gap-1">
+              <div className="timeline-bar w-full h-10 rounded-lg overflow-hidden">
+                <div
+                  className="timeline-bar__fill w-full"
+                  style={{ height: `${day.percent}%` }}
+                />
+              </div>
               <div
-                className="timeline-bar__fill w-full"
-                style={{ height: `${day.percent}%` }}
-              />
+                className="text-[10px] text-muted"
+                data-testid="consistency-date"
+                aria-label={formatDate(day.dateKey)}
+              >
+                {formatShortDate(day.dateKey)}
+              </div>
             </div>
           ))}
         </div>

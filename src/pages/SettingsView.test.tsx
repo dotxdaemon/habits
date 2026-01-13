@@ -55,4 +55,10 @@ describe('SettingsView', () => {
     expect(document.documentElement.dataset.scanlines).toBe('on');
     expect(storage.getItem('scanlines')).toBe('on');
   });
+
+  it('does not show the mascot in the settings menu', () => {
+    render(<SettingsView onRefresh={async () => {}} />);
+
+    expect(screen.queryByRole('img', { name: /mascot/i })).not.toBeInTheDocument();
+  });
 });

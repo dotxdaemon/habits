@@ -20,7 +20,7 @@ beforeEach(() => {
     logs,
     view: 'trends',
     isLoading: false,
-  } as any);
+  });
 });
 
 describe('TrendsView', () => {
@@ -39,5 +39,15 @@ describe('TrendsView', () => {
     expect(screen.getByTestId('habit-detail-grid')).toBeInTheDocument();
     expect(screen.getAllByTestId('day-cell')).toHaveLength(7);
     expect(screen.getAllByTestId('weekday-labels')).toHaveLength(1);
+  });
+
+  it('shows date labels for each consistency bar', () => {
+    render(<TrendsView onRefresh={async () => {}} />);
+
+    const dateLabels = screen.getAllByTestId('consistency-date');
+    expect(dateLabels).toHaveLength(14);
+    dateLabels.forEach((label) => {
+      expect(label.textContent?.trim()).not.toBe('');
+    });
   });
 });

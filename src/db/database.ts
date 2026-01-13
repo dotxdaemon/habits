@@ -3,7 +3,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Habit, Settings } from './schema';
 
-type SettingsTable = EntityTable<Settings & { id: string }, 'id'>;
+export type SettingsTable = EntityTable<Settings & { id: string }, 'id'>;
 
 export async function ensureDefaultSettings(settingsTable: SettingsTable) {
   await settingsTable.put({

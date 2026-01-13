@@ -11,6 +11,7 @@ import { SettingsView } from './pages/SettingsView';
 import { ProgressRing } from './components/ProgressRing';
 import { Card } from './components/Card';
 import { applyScanlines, applyTheme, getStoredScanlines, getStoredTheme } from './theme/theme';
+import type { LogEntry } from './db/schema';
 
 function App() {
   const { view, habits, logs, isLoading, setHabits, setLogs, setLoading, setView } = useAppStore();
@@ -47,7 +48,7 @@ function App() {
   };
 
   const { doneCount, totalCount } = useMemo(() => {
-    const todayLogs = logs[today] as Record<string, any> | undefined;
+    const todayLogs = logs[today] as Record<string, LogEntry> | undefined;
     const total = habits.length;
     const done = habits.reduce((count, habit) => {
       const log = todayLogs?.[habit.id];

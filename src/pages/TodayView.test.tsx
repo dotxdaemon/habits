@@ -37,7 +37,7 @@ describe('TodayView', () => {
       logs: {},
       view: 'today',
       isLoading: false,
-    } as any);
+    });
   });
 
   it('hides delete controls until manage mode is enabled', () => {
@@ -110,11 +110,15 @@ describe('TodayView', () => {
       }));
     });
 
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
     const updatedBadge = screen.getByText('1d').closest('span');
     expect(updatedBadge).toHaveClass('streak-badge--sparkle');
 
     act(() => {
-      vi.runAllTimers();
+      vi.advanceTimersByTime(320);
     });
     vi.useRealTimers();
   });

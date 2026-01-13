@@ -127,13 +127,25 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const previousStreak = useRef(streak);
 
   useEffect(() => {
-    if (streak > previousStreak.current) {
-      setShowSparkle(true);
-      const timeout = window.setTimeout(() => setShowSparkle(false), 320);
+    if (streak <= previousStreak.current) {
       previousStreak.current = streak;
-      return () => window.clearTimeout(timeout);
+      return;
     }
+
+    let hideTimeout: number | undefined;
+    const showTimeout = window.setTimeout(() => {
+      setShowSparkle(true);
+      hideTimeout = window.setTimeout(() => setShowSparkle(false), 320);
+    }, 0);
+
     previousStreak.current = streak;
+
+    return () => {
+      window.clearTimeout(showTimeout);
+      if (hideTimeout) {
+        window.clearTimeout(hideTimeout);
+      }
+    };
   }, [streak]);
 
   const handleCardClick = () => {

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "typecheck": "tsc -b",
     "test:ui": "vitest --ui",
     "e2e": "playwright test"
   },

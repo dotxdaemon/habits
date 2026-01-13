@@ -17,12 +17,12 @@ describe('ensureDefaultSettings', () => {
         hasRecord = true;
       }),
       put: vi.fn().mockResolvedValue(undefined),
-    };
+    } as unknown as Parameters<typeof ensureDefaultSettings>[0];
 
     await expect(
       Promise.all([
-        ensureDefaultSettings(settingsTable as any),
-        ensureDefaultSettings(settingsTable as any),
+        ensureDefaultSettings(settingsTable),
+        ensureDefaultSettings(settingsTable),
       ])
     ).resolves.toBeDefined();
 

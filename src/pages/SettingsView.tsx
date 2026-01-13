@@ -31,7 +31,7 @@ export function SettingsView({ onRefresh }: Props) {
       await importData(data, 'replace');
       alert('Data imported successfully!');
       await onRefresh();
-    } catch (error) {
+    } catch {
       alert('Failed to import data. Please check the JSON format.');
     }
   };

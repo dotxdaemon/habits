@@ -5,6 +5,7 @@ import { db } from './db/database';
 import { useAppStore } from './store';
 import { getHabits, getLogs, getToday } from './db/queries';
 import { formatDate } from './domain/streaks';
+import type { LogEntry } from './db/schema';
 import { TodayView } from './pages/TodayView';
 import { TrendsView } from './pages/TrendsView';
 import { SettingsView } from './pages/SettingsView';
@@ -47,7 +48,7 @@ function App() {
   };
 
   const { doneCount, totalCount } = useMemo(() => {
-    const todayLogs = logs[today] as Record<string, any> | undefined;
+    const todayLogs = logs[today] as Record<string, LogEntry> | undefined;
     const total = habits.length;
     const done = habits.reduce((count, habit) => {
       const log = todayLogs?.[habit.id];

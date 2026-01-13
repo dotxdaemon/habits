@@ -20,7 +20,7 @@ beforeEach(() => {
     logs,
     view: 'trends',
     isLoading: false,
-  } as any);
+  });
 });
 
 describe('TrendsView', () => {

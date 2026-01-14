@@ -125,8 +125,11 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const progress = habit.type === 'amount' && habit.target ? Math.min(((log?.value || 0) / habit.target) * 100, 100) : 0;
   const [showSparkle, setShowSparkle] = useState(false);
   const [showCheckCelebrate, setShowCheckCelebrate] = useState(false);
+  const [showTrendCelebrate, setShowTrendCelebrate] = useState(false);
   const previousStreak = useRef(streak);
+  const previousTrendStreak = useRef(streak);
   const previousDone = useRef(isDone);
+  const previousTrendDone = useRef(isDone);
 
   useEffect(() => {
     if (streak <= previousStreak.current) {
@@ -149,6 +152,35 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
       }
     };
   }, [streak]);
+
+  useEffect(() => {
+    if (!isCheckbox) {
+      previousTrendStreak.current = streak;
+      previousTrendDone.current = isDone;
+      return;
+    }
+
+    if (streak > previousTrendStreak.current && isDone && !previousTrendDone.current) {
+      let hideTimeout: number | undefined;
+      const showTimeout = window.setTimeout(() => {
+        setShowTrendCelebrate(true);
+        hideTimeout = window.setTimeout(() => setShowTrendCelebrate(false), 480);
+      }, 0);
+
+      previousTrendStreak.current = streak;
+      previousTrendDone.current = isDone;
+
+      return () => {
+        window.clearTimeout(showTimeout);
+        if (hideTimeout) {
+          window.clearTimeout(hideTimeout);
+        }
+      };
+    }
+
+    previousTrendStreak.current = streak;
+    previousTrendDone.current = isDone;
+  }, [isCheckbox, isDone, streak]);
 
   useEffect(() => {
     if (!isCheckbox) {
@@ -246,7 +278,7 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
         <div className="flex items-center justify-between gap-2">
           <div className="text-base font-semibold text-[color:var(--color-text)] truncate">{habit.name}</div>
           <span
-            className={`streak-badge ${streak > 0 ? 'streak-badge--active' : 'streak-badge--idle'} ${showSparkle ? 'streak-badge--sparkle' : ''}`}
+            className={`streak-badge ${streak > 0 ? 'streak-badge--active' : 'streak-badge--idle'} ${showSparkle ? 'streak-badge--sparkle' : ''} ${showTrendCelebrate ? 'streak-badge--celebrate' : ''}`}
           >
             <span className="streak-badge__icon" aria-hidden>★</span>
             {streak}d

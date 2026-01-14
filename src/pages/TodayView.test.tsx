@@ -123,6 +123,46 @@ describe('TodayView', () => {
     vi.useRealTimers();
   });
 
+  it('adds a celebration class to the streak badge when a checkbox streak increases after a click', async () => {
+    const today = getToday();
+    vi.useFakeTimers();
+
+    const onRefresh = vi.fn(async () => {
+      useAppStore.setState((state) => ({
+        ...state,
+        logs: {
+          [today]: {
+            [habit.id]: { done: true },
+          },
+        },
+      }));
+    });
+
+    render(<TodayView onRefresh={onRefresh} />);
+
+    const toggle = screen.getByRole('button', { name: /toggle read/i });
+    const initialBadge = screen.getByText('0d').closest('span');
+    expect(initialBadge).not.toHaveClass('streak-badge--celebrate');
+
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    const updatedBadge = screen.getByText('1d').closest('span');
+    expect(updatedBadge).toHaveClass('streak-badge--celebrate');
+
+    act(() => {
+      vi.advanceTimersByTime(480);
+    });
+
+    expect(updatedBadge).not.toHaveClass('streak-badge--celebrate');
+    vi.useRealTimers();
+  });
+
   it('adds a celebration class to the checkbox when a habit is completed', () => {
     const today = getToday();
     vi.useFakeTimers();

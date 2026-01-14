@@ -480,6 +480,10 @@ body::after {
     .habit-card[data-done='true'] {
       animation: habit-pop 120ms ease-out;
     }
+
+    .habit-check--celebrate {
+      animation: checkmark-celebrate 360ms ease-out;
+    }
   }
 
   .streak-badge {
@@ -530,10 +534,31 @@ body::after {
   .timeline-bar {
     background: var(--color-surface-muted);
     border: 2px solid var(--color-border);
+    border-radius: 12px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
   .timeline-bar__fill {
     background: linear-gradient(180deg, var(--color-progress-start), var(--color-progress-end));
+  }
+
+  .timeline-bar__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .timeline-bar__track {
+    background: var(--color-progress-track);
+    border: 2px solid var(--color-border);
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: flex-end;
+    height: 2.5rem;
+    overflow: hidden;
   }
 
   @keyframes habit-pop {
@@ -542,6 +567,21 @@ body::after {
     }
     100% {
       transform: scale(1);
+    }
+  }
+
+  @keyframes checkmark-celebrate {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 35%, transparent);
+    }
+    60% {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 transparent;
     }
   }
 

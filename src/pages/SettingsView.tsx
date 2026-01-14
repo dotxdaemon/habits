@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { exportData, importData } from '../db/queries';
 import { Card } from '../components/Card';
 import { IconButton } from '../components/IconButton';
-import { Mascot } from '../components/Mascot';
 import { ThemeToggle } from '../components/ThemeToggle';
 
 interface Props {
@@ -62,7 +61,6 @@ export function SettingsView({ onRefresh }: Props) {
             <h2 className="text-section">Appearance</h2>
             <p className="text-xs text-muted">Tune the look without changing behavior.</p>
           </div>
-          <Mascot className="h-12 w-12" />
         </div>
         <ThemeToggle />
       </Card>

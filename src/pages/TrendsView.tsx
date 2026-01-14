@@ -32,6 +32,12 @@ export function TrendsView({ onRefresh }: Props) {
     }, 0);
     return { dateKey, percent: Math.round((completeCount / habits.length) * 100) };
   });
+  const formatDateLabel = (dateKey: string) => {
+    const [year, month, day] = dateKey.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+  const weekdayLabels = last14DayCompletion.slice(0, 7).map((day) => getShortDayName(day.dateKey));
 
   return (
     <div className="space-y-4">
@@ -43,13 +49,25 @@ export function TrendsView({ onRefresh }: Props) {
           </div>
           <div className="text-sm text-muted">Last 14 days</div>
         </div>
-        <div className="grid grid-cols-14 gap-1">
+        <div className="grid grid-cols-7 gap-2 text-center text-xs text-muted">
+          {weekdayLabels.map((label, index) => (
+            <div key={`${label}-${index}`} className="uppercase tracking-wide">
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-2">
           {last14DayCompletion.map((day) => (
-            <div key={day.dateKey} className="timeline-bar w-full h-10 rounded-lg overflow-hidden">
-              <div
-                className="timeline-bar__fill w-full"
-                style={{ height: `${day.percent}%` }}
-              />
+            <div key={day.dateKey} className="timeline-bar">
+              <div className="timeline-bar__label" data-testid="consistency-date">
+                {formatDateLabel(day.dateKey)}
+              </div>
+              <div className="timeline-bar__track">
+                <div
+                  className="timeline-bar__fill w-full"
+                  style={{ height: `${day.percent}%` }}
+                />
+              </div>
             </div>
           ))}
         </div>

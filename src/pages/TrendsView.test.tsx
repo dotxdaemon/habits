@@ -40,4 +40,14 @@ describe('TrendsView', () => {
     expect(screen.getAllByTestId('day-cell')).toHaveLength(7);
     expect(screen.getAllByTestId('weekday-labels')).toHaveLength(1);
   });
+
+  it('shows date labels for each consistency cell', () => {
+    render(<TrendsView onRefresh={async () => {}} />);
+
+    const dateLabels = screen.getAllByTestId('consistency-date');
+    expect(dateLabels).toHaveLength(14);
+    dateLabels.forEach((label) => {
+      expect(label).toHaveTextContent(/\d{1,2}/);
+    });
+  });
 });

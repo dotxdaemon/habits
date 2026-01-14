@@ -122,4 +122,38 @@ describe('TodayView', () => {
     });
     vi.useRealTimers();
   });
+
+  it('adds a celebration class to the checkbox when a habit is completed', () => {
+    const today = getToday();
+    vi.useFakeTimers();
+
+    render(<TodayView onRefresh={async () => {}} />);
+
+    const toggle = screen.getByRole('button', { name: /toggle read/i });
+    expect(toggle).not.toHaveClass('habit-check--celebrate');
+
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        logs: {
+          [today]: {
+            [habit.id]: { done: true },
+          },
+        },
+      }));
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(toggle).toHaveClass('habit-check--celebrate');
+
+    act(() => {
+      vi.advanceTimersByTime(360);
+    });
+
+    expect(toggle).not.toHaveClass('habit-check--celebrate');
+    vi.useRealTimers();
+  });
 });

@@ -124,7 +124,9 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
   const isDone = isCheckbox ? log?.done : (log?.value || 0) >= (habit.target || 1);
   const progress = habit.type === 'amount' && habit.target ? Math.min(((log?.value || 0) / habit.target) * 100, 100) : 0;
   const [showSparkle, setShowSparkle] = useState(false);
+  const [showCheckCelebrate, setShowCheckCelebrate] = useState(false);
   const previousStreak = useRef(streak);
+  const previousDone = useRef(isDone);
 
   useEffect(() => {
     if (streak <= previousStreak.current) {
@@ -147,6 +149,32 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
       }
     };
   }, [streak]);
+
+  useEffect(() => {
+    if (!isCheckbox) {
+      previousDone.current = isDone;
+      return;
+    }
+
+    if (isDone && !previousDone.current) {
+      let hideTimeout: number | undefined;
+      const showTimeout = window.setTimeout(() => {
+        setShowCheckCelebrate(true);
+        hideTimeout = window.setTimeout(() => setShowCheckCelebrate(false), 360);
+      }, 0);
+
+      previousDone.current = isDone;
+
+      return () => {
+        window.clearTimeout(showTimeout);
+        if (hideTimeout) {
+          window.clearTimeout(hideTimeout);
+        }
+      };
+    }
+
+    previousDone.current = isDone;
+  }, [isCheckbox, isDone]);
 
   const handleCardClick = () => {
     if (isCheckbox) {
@@ -176,6 +204,7 @@ function HabitRow({ habit, log, streak, isManaging, onToggleCheckbox, onUpdateAm
           <IconButton
             variant={isDone ? 'primary' : 'ghost'}
             aria-label={`Toggle ${habit.name}`}
+            className={showCheckCelebrate ? 'habit-check--celebrate' : ''}
             onClick={(e) => {
               e.stopPropagation();
               void onToggleCheckbox(habit.id);

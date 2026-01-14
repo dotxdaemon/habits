@@ -484,6 +484,10 @@ body::after {
     .habit-check--celebrate {
       animation: checkmark-celebrate 360ms ease-out;
     }
+
+    .streak-badge--celebrate {
+      animation: trend-celebrate 480ms ease-out;
+    }
   }
 
   .streak-badge {
@@ -599,10 +603,29 @@ body::after {
       opacity: 0.8;
     }
   }
+
+  @keyframes trend-celebrate {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-sunshine) 35%, transparent);
+    }
+    60% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-sunshine) 20%, transparent);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .streak-badge--sparkle .streak-badge__icon {
+    animation: none;
+  }
+
+  .streak-badge--celebrate {
     animation: none;
   }
 }
